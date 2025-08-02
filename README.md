@@ -10,7 +10,7 @@
 ## 🏆 Hackathon Info
 **Event:** Odoo x CGC Hackathon 2025  
 **Theme:** Smart Cities & Civic Engagement  
-**Duration:** 48 Hours  
+**Duration:** 8 Hours  
 **Team:** NETRUNNERS  
 
 ## ❓ Problem Statement
