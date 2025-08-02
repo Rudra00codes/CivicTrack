@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Block access to source maps in production
+Disallow: /*.map$
+
+# Block access to config files
+Disallow: /*.config.js$
+Disallow: /*.config.ts$
+
+# Performance optimization
+Sitemap: https://your-domain.vercel.app/sitemap.xml

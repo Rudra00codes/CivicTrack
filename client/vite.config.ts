@@ -14,4 +14,24 @@ export default defineConfig({
     strictPort: true,
     open: true,
   },
+  build: {
+    outDir: "dist",
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+          router: ["react-router-dom"],
+          firebase: ["firebase"],
+          maps: ["leaflet", "react-leaflet"],
+          ui: ["@headlessui/react", "@heroicons/react"]
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  },
+  preview: {
+    port: 4173,
+    strictPort: true
+  }
 });

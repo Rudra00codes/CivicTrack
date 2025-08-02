@@ -5,10 +5,20 @@ import { useIssueActions } from "../hooks/useIssues";
 import { validators } from "../utils/validation";
 import { errorHandler } from "../utils/errorHandler";
 import { compressImage } from "../utils/imageUtils";
+import { Input, Textarea, Select } from "../components/common/FormComponents";
+import { useToastHelpers } from "../components/common/Toast";
+import { Breadcrumb } from "../components/common/Navigation";
+import { 
+  PhotoIcon, 
+  MapPinIcon, 
+  ExclamationTriangleIcon,
+  CheckCircleIcon 
+} from "@heroicons/react/24/outline";
 
 const ReportIssue = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
+  const { success, error: showError } = useToastHelpers();
   
   // Use the modular issue actions hook
   const { 
@@ -21,23 +31,42 @@ const ReportIssue = () => {
     title: '',
     description: '',
     category: '',
+    priority: 'medium',
     location: {
       type: 'Point',
       coordinates: [0, 0] // [longitude, latitude]
     },
     isAnonymous: false
   });
+  
   const [images, setImages] = useState<File[]>([]);
   const [locationText, setLocationText] = useState('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [currentStep, setCurrentStep] = useState(1);
 
   const categories = [
-    'Roads',
-    'Lighting', 
-    'Water Supply',
-    'Cleanliness',
-    'Public Safety',
-    'Obstructions'
+    { value: 'infrastructure', label: 'Infrastructure (Roads, Sidewalks)' },
+    { value: 'lighting', label: 'Street Lighting' },
+    { value: 'water', label: 'Water Supply & Drainage' },
+    { value: 'sanitation', label: 'Cleanliness & Waste' },
+    { value: 'safety', label: 'Public Safety' },
+    { value: 'traffic', label: 'Traffic & Transportation' },
+    { value: 'environment', label: 'Environmental Issues' },
+    { value: 'utilities', label: 'Utilities & Services' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  const priorityOptions = [
+    { value: 'low', label: 'Low - Minor inconvenience' },
+    { value: 'medium', label: 'Medium - Needs attention' },
+    { value: 'high', label: 'High - Safety concern' },
+    { value: 'urgent', label: 'Urgent - Immediate danger' }
+  ];
+
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Report Issue', current: true }
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -52,35 +81,51 @@ const ReportIssue = () => {
         ...prev,
         [name]: value
       }));
+      
+      // Clear validation error when user starts typing
+      if (validationErrors[name]) {
+        setValidationErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    
     if (files.length + images.length > 5) {
-      alert('You can upload a maximum of 5 images');
+      showError('You can upload a maximum of 5 images', 'Upload limit reached');
       return;
     }
-    setImages(prev => [...prev, ...files]);
+
+    try {
+      // Compress images for better performance
+      const compressedFiles = await Promise.all(
+        files.map(async (file) => {
+          try {
+            return await compressImage(file, { quality: 0.8, maxWidth: 1920 });
+          } catch (error) {
+            console.warn('Failed to compress image:', file.name, error);
+            return file; // Use original if compression fails
+          }
+        })
+      );
+      
+      setImages(prev => [...prev, ...compressedFiles]);
+      success(`Added ${files.length} image${files.length > 1 ? 's' : ''}`, 'Upload successful');
+    } catch (error) {
+      showError('Failed to process images', 'Please try again');
+    }
   };
 
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
+    success('Image removed');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!isSignedIn) {
-      navigate('/login');
-      return;
-    }
-
-    // Clear previous errors
-    clearError();
-    setValidationErrors({});
-
-    // Validate form data using modular validators
+  const validateForm = () => {
     const titleValidation = validators.issueTitle(formData.title);
     const descriptionValidation = validators.issueDescription(formData.description);
     const categoryValidation = validators.issueCategory(formData.category);
@@ -116,8 +161,26 @@ const ReportIssue = () => {
       }
     }
 
+    return errors;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!isSignedIn) {
+      navigate('/login');
+      return;
+    }
+
+    // Clear previous errors
+    clearError();
+    setValidationErrors({});
+
+    const errors = validateForm();
+
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
+      showError('Please fix the errors below', 'Form validation failed');
       return;
     }
 
@@ -169,196 +232,386 @@ const ReportIssue = () => {
             }
           }));
           setLocationText(`Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`);
+          success('Location updated', 'GPS coordinates set successfully');
         },
         () => {
-          alert('Unable to get your location. Please enter it manually.');
+          showError('Unable to get your location', 'Please enter it manually');
         }
       );
     } else {
-      alert('Geolocation is not supported by this browser.');
+      showError('Geolocation not supported', 'Please enter location manually');
     }
   };
 
+  const nextStep = () => {
+    const errors = validateForm();
+    const currentErrors = Object.keys(errors).filter(key => {
+      if (currentStep === 1) return ['title', 'category', 'description'].includes(key);
+      if (currentStep === 2) return ['location'].includes(key);
+      return true;
+    });
+
+    if (currentErrors.length > 0) {
+      const stepErrors: Record<string, string> = {};
+      currentErrors.forEach(key => {
+        stepErrors[key] = errors[key];
+      });
+      setValidationErrors(stepErrors);
+      return;
+    }
+
+    setCurrentStep(prev => Math.min(prev + 1, 3));
+    setValidationErrors({});
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setValidationErrors({});
+  };
+
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6">
+      {/* Breadcrumb */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Report an Issue</h1>
-        <p className="text-gray-600">Help improve your community by reporting civic issues.</p>
+        <Breadcrumb items={breadcrumbItems} />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Validation Errors */}
-        {Object.keys(validationErrors).length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <h3 className="text-red-800 font-medium mb-2">Please fix the following errors:</h3>
-            <ul className="text-red-700 text-sm space-y-1">
-              {Object.entries(validationErrors).map(([field, error]) => (
-                <li key={field}>• {error}</li>
-              ))}
-            </ul>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Report an Issue</h1>
+        <p className="text-gray-600">Help improve your community by reporting civic issues. Your report will be reviewed and forwarded to the appropriate authorities.</p>
+      </div>
+
+      {/* Progress Steps */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          {[
+            { step: 1, label: 'Issue Details', icon: ExclamationTriangleIcon },
+            { step: 2, label: 'Location & Photos', icon: MapPinIcon },
+            { step: 3, label: 'Review & Submit', icon: CheckCircleIcon }
+          ].map(({ step, label, icon: Icon }) => (
+            <div key={step} className="flex items-center">
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                currentStep >= step 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {currentStep > step ? (
+                  <CheckCircleIcon className="h-6 w-6" />
+                ) : (
+                  <Icon className="h-6 w-6" />
+                )}
+              </div>
+              <span className={`ml-2 text-sm font-medium ${
+                currentStep >= step ? 'text-blue-600' : 'text-gray-500'
+              }`}>
+                {label}
+              </span>
+              {step < 3 && (
+                <div className={`ml-4 h-0.5 w-16 ${
+                  currentStep > step ? 'bg-blue-600' : 'bg-gray-200'
+                }`} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        {/* Step 1: Issue Details */}
+        {currentStep === 1 && (
+          <div className="space-y-6">
+            <div className="border-b border-gray-200 pb-4 mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Issue Details</h2>
+              <p className="text-gray-600">Provide clear information about the issue you're reporting.</p>
+            </div>
+
+            <Input
+              label="Issue Title"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              placeholder="Brief, descriptive title (e.g., 'Broken streetlight on Main St')"
+              error={validationErrors.title}
+              required
+              maxLength={100}
+            />
+
+            <Select
+              label="Category"
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              placeholder="Select the type of issue"
+              options={categories}
+              error={validationErrors.category}
+              required
+            />
+
+            <Select
+              label="Priority Level"
+              name="priority"
+              value={formData.priority}
+              onChange={handleInputChange}
+              options={priorityOptions}
+              hint="Help us prioritize your report appropriately"
+            />
+
+            <Textarea
+              label="Description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Provide detailed information about the issue, including when you first noticed it, its impact on the community, and any other relevant details..."
+              error={validationErrors.description}
+              required
+              rows={6}
+              showCharCount
+              maxLength={1000}
+              hint="The more details you provide, the faster we can address the issue"
+            />
           </div>
         )}
 
-        {/* Title */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-            Issue Title *
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-            placeholder="Brief description of the issue"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
-        </div>
+        {/* Step 2: Location & Photos */}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            <div className="border-b border-gray-200 pb-4 mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Location & Photos</h2>
+              <p className="text-gray-600">Help us locate the issue and provide visual evidence.</p>
+            </div>
 
-        {/* Category */}
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-            Category *
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          >
-            <option value="">Select a category</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
+            {/* Location */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Location <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-3">
+                <Input
+                  name="location"
+                  value={locationText}
+                  onChange={(e) => setLocationText(e.target.value)}
+                  placeholder="Enter address or landmark"
+                  error={validationErrors.location}
+                  leftIcon={<MapPinIcon className="h-5 w-5" />}
+                  className="flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={getCurrentLocation}
+                  className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                >
+                  <MapPinIcon className="h-5 w-5" />
+                  <span>Use GPS</span>
+                </button>
+              </div>
+              {formData.location.coordinates[0] !== 0 && (
+                <p className="mt-2 text-sm text-green-600 flex items-center space-x-1">
+                  <CheckCircleIcon className="h-4 w-4" />
+                  <span>Location set: {locationText}</span>
+                </p>
+              )}
+            </div>
 
-        {/* Description */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-            Description *
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            placeholder="Provide more details about the issue"
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
-        </div>
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Photos (up to 5)
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer flex flex-col items-center justify-center text-gray-500 hover:text-gray-700"
+                >
+                  <PhotoIcon className="h-12 w-12 mb-4 text-gray-400" />
+                  <span className="text-lg font-medium mb-2">Upload Photos</span>
+                  <span className="text-sm text-gray-500">
+                    Click to browse or drag and drop images here
+                  </span>
+                  <span className="text-xs text-gray-400 mt-1">
+                    JPG, PNG, WebP up to 5MB each
+                  </span>
+                </label>
+              </div>
+              
+              {validationErrors.images && (
+                <p className="mt-2 text-sm text-red-600 flex items-center space-x-1">
+                  <ExclamationTriangleIcon className="h-4 w-4" />
+                  <span>{validationErrors.images}</span>
+                </p>
+              )}
 
-        {/* Location */}
-        <div>
-          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-            Location
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={locationText}
-              onChange={(e) => setLocationText(e.target.value)}
-              placeholder="Enter location or use GPS"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <button
-              type="button"
-              onClick={getCurrentLocation}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              📍 GPS
-            </button>
+              {/* Image Preview */}
+              {images.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">
+                    Uploaded Images ({images.length}/5)
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {images.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={URL.createObjectURL(image)}
+                          alt={`Upload ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          ×
+                        </button>
+                        <div className="absolute inset-x-0 bottom-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b-lg">
+                          {(image.size / 1024 / 1024).toFixed(1)}MB
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Image Upload */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Photos (up to 5)
-          </label>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-              id="image-upload"
-            />
-            <label
-              htmlFor="image-upload"
-              className="cursor-pointer flex flex-col items-center justify-center text-gray-500 hover:text-gray-700"
-            >
-              <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span className="text-sm">Click to upload photos</span>
-            </label>
+        {/* Step 3: Review & Submit */}
+        {currentStep === 3 && (
+          <div className="space-y-6">
+            <div className="border-b border-gray-200 pb-4 mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Review & Submit</h2>
+              <p className="text-gray-600">Please review your report before submitting.</p>
+            </div>
+
+            {/* Review Summary */}
+            <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+              <div>
+                <h3 className="font-medium text-gray-900">Issue Title</h3>
+                <p className="text-gray-700">{formData.title}</p>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-900">Category & Priority</h3>
+                <p className="text-gray-700">
+                  {categories.find(cat => cat.value === formData.category)?.label} • 
+                  <span className={`ml-1 px-2 py-1 text-xs rounded-full ${
+                    formData.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                    formData.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                    formData.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {priorityOptions.find(p => p.value === formData.priority)?.label.split(' - ')[0]}
+                  </span>
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-medium text-gray-900">Description</h3>
+                <p className="text-gray-700">{formData.description}</p>
+              </div>
+
+              <div>
+                <h3 className="font-medium text-gray-900">Location</h3>
+                <p className="text-gray-700">{locationText || 'GPS coordinates set'}</p>
+              </div>
+
+              {images.length > 0 && (
+                <div>
+                  <h3 className="font-medium text-gray-900">Photos ({images.length})</h3>
+                  <div className="flex space-x-2 mt-2">
+                    {images.map((image, index) => (
+                      <img
+                        key={index}
+                        src={URL.createObjectURL(image)}
+                        alt={`Preview ${index + 1}`}
+                        className="w-16 h-16 object-cover rounded border"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Anonymous Reporting */}
+            <div className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg">
+              <input
+                type="checkbox"
+                id="isAnonymous"
+                name="isAnonymous"
+                checked={formData.isAnonymous}
+                onChange={handleInputChange}
+                className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <div>
+                <label htmlFor="isAnonymous" className="text-sm font-medium text-gray-900">
+                  Submit anonymously
+                </label>
+                <p className="text-xs text-gray-500 mt-1">
+                  Your identity will not be shared, but you won't receive status updates
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between pt-6 border-t border-gray-200 mt-8">
+          <div>
+            {currentStep > 1 && (
+              <button
+                type="button"
+                onClick={prevStep}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Previous
+              </button>
+            )}
           </div>
           
-          {/* Image Preview */}
-          {images.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-              {images.map((image, index) => (
-                <div key={index} className="relative">
-                  <img
-                    src={URL.createObjectURL(image)}
-                    alt={`Upload ${index + 1}`}
-                    className="w-full h-24 object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Anonymous Reporting */}
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="isAnonymous"
-            name="isAnonymous"
-            checked={formData.isAnonymous}
-            onChange={handleInputChange}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-          />
-          <label htmlFor="isAnonymous" className="ml-2 text-sm text-gray-700">
-            Report anonymously
-          </label>
-        </div>
-
-        {/* Submit Button */}
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={() => navigate('/dashboard')}
-            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Report'}
-          </button>
+          <div className="flex space-x-3">
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            
+            {currentStep < 3 ? (
+              <button
+                type="button"
+                onClick={nextStep}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircleIcon className="h-5 w-5" />
+                    <span>Submit Report</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </div>

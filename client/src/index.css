@@ -49,6 +49,16 @@ body {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
+/* Alert animations */
+@keyframes shrinkWidth {
+  from { 
+    transform: scaleX(1); 
+  }
+  to { 
+    transform: scaleX(0); 
+  }
+}
+
 .btn-secondary {
   background-color: white;
   color: #2563eb;
