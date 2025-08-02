@@ -18,16 +18,32 @@ function App() {
         <Route
           path="/sign-in/*"
           element={
-            <div className="flex items-center justify-center min-h-screen">
-              <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" />
+            <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+              <div className="w-full max-w-md">
+                <SignIn 
+                  routing="path" 
+                  path="/sign-in" 
+                  signUpUrl="/sign-up"
+                  afterSignInUrl={sessionStorage.getItem('redirectUrl') || '/dashboard'}
+                  afterSignUpUrl="/dashboard"
+                />
+              </div>
             </div>
           }
         />
         <Route
           path="/sign-up/*"
           element={
-            <div className="flex items-center justify-center min-h-screen">
-              <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />
+            <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+              <div className="w-full max-w-md">
+                <SignUp 
+                  routing="path" 
+                  path="/sign-up" 
+                  signInUrl="/sign-in"
+                  afterSignInUrl={sessionStorage.getItem('redirectUrl') || '/dashboard'}
+                  afterSignUpUrl="/dashboard"
+                />
+              </div>
             </div>
           }
         />
