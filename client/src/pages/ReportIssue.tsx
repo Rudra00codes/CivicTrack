@@ -1,35 +1,58 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "../context/AuthContext";
+import { useIssueActions } from "../hooks/useIssues";
+import { validators } from "../utils/validation";
+import { errorHandler } from "../utils/errorHandler";
+import { compressImage } from "../utils/imageUtils";
 
 const ReportIssue = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { isSignedIn } = useAuth();
+  
+  // Use the modular issue actions hook
+  const { 
+    loading: isSubmitting, 
+    createNewIssue, 
+    clearError 
+  } = useIssueActions();
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: '',
-    location: '',
+    location: {
+      type: 'Point',
+      coordinates: [0, 0] // [longitude, latitude]
+    },
     isAnonymous: false
   });
   const [images, setImages] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locationText, setLocationText] = useState('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const categories = [
-    'Roads (potholes, obstructions)',
-    'Lighting (broken or flickering lights)',
-    'Water Supply (leaks, low pressure)',
-    'Cleanliness (overflowing bins, garbage)',
-    'Public Safety (open manholes, exposed wiring)',
-    'Obstructions (fallen trees, debris)'
+    'Roads',
+    'Lighting', 
+    'Water Supply',
+    'Cleanliness',
+    'Public Safety',
+    'Obstructions'
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    }));
+    const { name, value } = e.target;
+    if (name === 'isAnonymous') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: (e.target as HTMLInputElement).checked
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,18 +70,90 @@ const ReportIssue = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.description || !formData.category) {
-      alert('Please fill in all required fields');
+    
+    if (!isSignedIn) {
+      navigate('/login');
       return;
     }
 
-    setIsSubmitting(true);
+    // Clear previous errors
+    clearError();
+    setValidationErrors({});
+
+    // Validate form data using modular validators
+    const titleValidation = validators.issueTitle(formData.title);
+    const descriptionValidation = validators.issueDescription(formData.description);
+    const categoryValidation = validators.issueCategory(formData.category);
+
+    const errors: Record<string, string> = {};
     
-    // Simulate API call
-    setTimeout(() => {
-      alert('Issue reported successfully!');
-      navigate('/dashboard');
-    }, 1500);
+    if (!titleValidation.isValid) {
+      errors.title = titleValidation.errors[0];
+    }
+    if (!descriptionValidation.isValid) {
+      errors.description = descriptionValidation.errors[0];  
+    }
+    if (!categoryValidation.isValid) {
+      errors.category = categoryValidation.errors[0];
+    }
+
+    // Check location
+    if (formData.location.coordinates[0] === 0 && formData.location.coordinates[1] === 0) {
+      errors.location = 'Please set your location';
+    } else {
+      const [lng, lat] = formData.location.coordinates;
+      const coordValidation = validators.coordinates(lat, lng);
+      if (!coordValidation.isValid) {
+        errors.location = 'Invalid location coordinates';
+      }
+    }
+
+    // Validate images if any
+    if (images.length > 0) {
+      const imageValidation = validators.imageFiles(images);
+      if (!imageValidation.isValid) {
+        errors.images = imageValidation.errors[0];
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    try {
+      // Compress images before upload
+      const compressedImages = await Promise.all(
+        images.map(img => compressImage(img))
+      );
+      
+      // Convert images to base64 for demo (in production, upload to cloud storage)
+      const imageUrls = await Promise.all(
+        compressedImages.map(img => {
+          return new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(img);
+          });
+        })
+      );
+
+      const issueData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        location: formData.location,
+        images: imageUrls,
+        is_anonymous: formData.isAnonymous
+      };
+
+      const success = await createNewIssue(issueData);
+      if (success) {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      errorHandler.logError(err as Error, 'Issue Creation Form');
+    }
   };
 
   const getCurrentLocation = () => {
@@ -66,13 +161,16 @@ const ReportIssue = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          // In a real app, you'd reverse geocode these coordinates
           setFormData(prev => ({
             ...prev,
-            location: `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`
+            location: {
+              type: 'Point',
+              coordinates: [longitude, latitude]
+            }
           }));
+          setLocationText(`Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`);
         },
-        (error) => {
+        () => {
           alert('Unable to get your location. Please enter it manually.');
         }
       );
@@ -89,6 +187,18 @@ const ReportIssue = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Validation Errors */}
+        {Object.keys(validationErrors).length > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h3 className="text-red-800 font-medium mb-2">Please fix the following errors:</h3>
+            <ul className="text-red-700 text-sm space-y-1">
+              {Object.entries(validationErrors).map(([field, error]) => (
+                <li key={field}>• {error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Title */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
@@ -155,8 +265,8 @@ const ReportIssue = () => {
               type="text"
               id="location"
               name="location"
-              value={formData.location}
-              onChange={handleInputChange}
+              value={locationText}
+              onChange={(e) => setLocationText(e.target.value)}
               placeholder="Enter location or use GPS"
               className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />

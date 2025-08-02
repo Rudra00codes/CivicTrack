@@ -1,179 +1,359 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "../context/AuthContext";
+import { getIssues } from "../services/issueService";
+import { IIssue } from "../types";
 
-interface Issue {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  status: 'Reported' | 'In Progress' | 'Resolved';
-  location: string;
-  reportedAt: string;
-  imageUrl?: string;
-  upvotes: number;
-  distance: string;
-}
 
+/**
+ * Dashboard page showing issues within a 5km radius of the user's location.
+ * Issues can be filtered by status and category.
+ * Features map view and distance-based filtering.
+ */
 const Dashboard = () => {
-  const { user } = useUser();
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [filter, setFilter] = useState<'all' | 'reported' | 'in-progress' | 'resolved'>('all');
+  const { user } = useAuth();
+  const [issues, setIssues] = useState<IIssue[]>([]);
+  const [userIssues, setUserIssues] = useState<IIssue[]>([]);
+  const [filter, setFilter] = useState<'all' | 'my-issues'>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [distanceFilter, setDistanceFilter] = useState<string>('5000'); // meters
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
-  // Mock data for demonstration
   useEffect(() => {
-    const mockIssues: Issue[] = [
-      {
-        id: '1',
-        title: 'Pothole on Main Road',
-        description: 'Large pothole causing traffic issues',
-        category: 'Roads',
-        status: 'Reported',
-        location: 'Main Road, Near City Center',
-        reportedAt: '2 hours ago',
-        upvotes: 12,
-        distance: '0.5 km'
-      },
-      {
-        id: '2',
-        title: 'Broken Street Light',
-        description: 'Street light not working for 3 days',
-        category: 'Lighting',
-        status: 'In Progress',
-        location: 'Park Avenue',
-        reportedAt: '1 day ago',
-        upvotes: 8,
-        distance: '1.2 km'
-      },
-      {
-        id: '3',
-        title: 'Garbage Overflow',
-        description: 'Overflowing garbage bin attracting pests',
-        category: 'Cleanliness',
-        status: 'Resolved',
-        location: 'Market Street',
-        reportedAt: '3 days ago',
-        upvotes: 15,
-        distance: '0.8 km'
-      }
-    ];
-    setIssues(mockIssues);
+    fetchDashboardData();
   }, []);
 
-  const filteredIssues = issues.filter(issue => {
-    const statusMatch = filter === 'all' || issue.status.toLowerCase().replace(' ', '-') === filter;
-    const categoryMatch = categoryFilter === 'all' || issue.category === categoryFilter;
-    return statusMatch && categoryMatch;
-  });
+  useEffect(() => {
+    // Refetch data when distance filter changes
+    if (userLocation) {
+      fetchDashboardData();
+    }
+  }, [distanceFilter]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Reported': return 'bg-red-100 text-red-800';
-      case 'In Progress': return 'bg-yellow-100 text-yellow-800';
-      case 'Resolved': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+  /**
+   * Fetches issues from the backend within specified distance of the user's location.
+   * Falls back to default location if geolocation is unavailable.
+   */
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const coords = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            setUserLocation(coords);
+            
+            // Fetch issues within specified distance of user's current location
+            const { data } = await getIssues(
+              coords.lat,
+              coords.lng,
+              parseInt(distanceFilter)
+            );
+            setIssues(data);
+            setUserIssues(data.filter((issue: any) => issue.user._id === user?.uid));
+          },
+          () => {
+            // Fallback: Use a default location (e.g., city center)
+            const defaultCoords = { lat: 28.6139, lng: 77.2090 };
+            setUserLocation(defaultCoords);
+            getIssues(defaultCoords.lat, defaultCoords.lng, parseInt(distanceFilter)).then(({ data }) => {
+              setIssues(data);
+              setUserIssues(data.filter((issue: any) => issue.user._id === user?.uid));
+            });
+          }
+        );
+      } else {
+        // Geolocation not supported
+        const defaultCoords = { lat: 28.6139, lng: 77.2090 };
+        setUserLocation(defaultCoords);
+        getIssues(defaultCoords.lat, defaultCoords.lng, parseInt(distanceFilter)).then(({ data }) => {
+          setIssues(data);
+          setUserIssues(data.filter((issue: any) => issue.user._id === user?.uid));
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Welcome back, {user?.firstName || 'User'}! Here are the latest civic issues in your area.</p>
+  const displayedIssues = filter === 'my-issues' ? userIssues : issues;
+
+  const filteredIssues = displayedIssues.filter(issue => {
+    if (statusFilter !== 'all' && issue.status !== statusFilter) return false;
+    if (categoryFilter !== 'all' && issue.category !== categoryFilter) return false;
+    return true;
+  });
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p className="mt-2">Loading dashboard...</p>
         </div>
-        <Link
-          to="/report-issue"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Report New Issue
-        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-gray-600">
+          Welcome back, {user?.displayName || 'User'}! Here's what's happening in your community.
+        </p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-blue-50 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-blue-900 mb-2">Report New Issue</h3>
+          <p className="text-blue-700 mb-4">Found a problem in your area?</p>
+          <Link
+            to="/report-issue"
+            className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Report Now
+          </Link>
+        </div>
+        
+        <div className="bg-green-50 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-green-900 mb-2">My Issues</h3>
+          <p className="text-green-700 mb-4">{userIssues.length} issues reported</p>
+          <button
+            onClick={() => setFilter('my-issues')}
+            className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            View My Issues
+          </button>
+        </div>
+
+        <div className="bg-purple-50 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-purple-900 mb-2">Community Issues</h3>
+          <p className="text-purple-700 mb-4">{issues.length} issues nearby</p>
+          <button
+            onClick={() => setFilter('all')}
+            className="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            View All
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex flex-wrap gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-          >
-            <option value="all">All Status</option>
-            <option value="reported">Reported</option>
-            <option value="in-progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-          </select>
+      <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="flex flex-wrap items-center gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <label className="font-medium text-gray-700">View:</label>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as 'all' | 'my-issues')}
+              className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Issues</option>
+              <option value="my-issues">My Issues</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="font-medium text-gray-700">Status:</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Status</option>
+              <option value="Reported">Reported</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="font-medium text-gray-700">Category:</label>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Categories</option>
+              <option value="Roads">Roads</option>
+              <option value="Lighting">Lighting</option>
+              <option value="Water Supply">Water Supply</option>
+              <option value="Cleanliness">Cleanliness</option>
+              <option value="Public Safety">Public Safety</option>
+              <option value="Obstructions">Obstructions</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="font-medium text-gray-700">Distance:</label>
+            <select
+              value={distanceFilter}
+              onChange={(e) => setDistanceFilter(e.target.value)}
+              className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="1000">1 km</option>
+              <option value="3000">3 km</option>
+              <option value="5000">5 km</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-          >
-            <option value="all">All Categories</option>
-            <option value="Roads">Roads</option>
-            <option value="Lighting">Lighting</option>
-            <option value="Water Supply">Water Supply</option>
-            <option value="Cleanliness">Cleanliness</option>
-            <option value="Public Safety">Public Safety</option>
-          </select>
+
+        {/* View Mode Toggle */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-700">View Mode:</span>
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-white text-blue-600 shadow'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                  Grid
+                </span>
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  viewMode === 'map'
+                    ? 'bg-white text-blue-600 shadow'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Map
+                </span>
+              </button>
+            </div>
+          </div>
+          
+          <div className="text-sm text-gray-500">
+            Showing {filteredIssues.length} issues within {parseInt(distanceFilter)/1000}km
+          </div>
         </div>
       </div>
 
-      {/* Issues Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredIssues.map((issue) => (
-          <Link
-            key={issue.id}
-            to={`/issues/${issue.id}`}
-            className="block bg-white rounded-lg shadow hover:shadow-md transition-shadow border"
-          >
-            <div className="p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-gray-900 line-clamp-2">{issue.title}</h3>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(issue.status)}`}>
-                  {issue.status}
-                </span>
-              </div>
-              
-              <p className="text-gray-600 text-sm mb-3 line-clamp-2">{issue.description}</p>
-              
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-                <span className="bg-gray-100 px-2 py-1 rounded">{issue.category}</span>
-                <span>{issue.distance}</span>
-              </div>
-              
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>{issue.location}</span>
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center gap-1">
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                    </svg>
-                    {issue.upvotes}
-                  </span>
-                  <span>{issue.reportedAt}</span>
+      {/* Content Area - Grid or Map */}
+      {viewMode === 'grid' ? (
+        /* Issues Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredIssues.length > 0 ? (
+            filteredIssues.map((issue) => (
+              <div key={issue._id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                {issue.images && issue.images.length > 0 && (
+                  <img
+                    src={issue.images[0]}
+                    alt={issue.title}
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                )}
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold mb-2">{issue.title}</h3>
+                  <p className="text-gray-600 mb-3 line-clamp-2">{issue.description}</p>
+                  
+                  <div className="flex items-center justify-between mb-3">
+                    <span className={`px-2 py-1 rounded text-sm ${
+                      issue.status === 'Resolved' ? 'bg-green-100 text-green-800' :
+                      issue.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {issue.status}
+                    </span>
+                    <span className="text-sm text-gray-500">{issue.category}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <span>{new Date(issue.createdAt).toLocaleDateString()}</span>
+                    <span>👍 {issue.upvotes.length}</span>
+                  </div>
+
+                  <Link
+                    to={`/issues/${issue._id}`}
+                    className="block w-full text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    View Details
+                  </Link>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p className="text-gray-500">
+                {filter === 'my-issues' ? 'You haven\'t reported any issues yet.' : 'No issues found.'}
+              </p>
+              {filter === 'my-issues' && (
+                <Link
+                  to="/report-issue"
+                  className="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Report Your First Issue
+                </Link>
+              )}
             </div>
-          </Link>
-        ))}
-      </div>
-
-      {filteredIssues.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">📋</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No issues found</h3>
-          <p className="text-gray-600 mb-4">No civic issues match your current filters.</p>
-          <Link
-            to="/report-issue"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Report the first issue
-          </Link>
+          )}
+        </div>
+      ) : (
+        /* Map View */
+        <div className="bg-white rounded-lg shadow">
+          <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="text-center">
+              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Interactive Map View</h3>
+              <p className="text-gray-500 mb-4">
+                Map integration coming soon! This will show all {filteredIssues.length} issues as pins on an interactive map.
+              </p>
+              <div className="text-sm text-gray-400">
+                Current location: {userLocation ? `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}` : 'Loading...'}
+              </div>
+            </div>
+          </div>
+          
+          {/* Map Legend */}
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span>Reported ({filteredIssues.filter(i => i.status === 'Reported').length})</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <span>In Progress ({filteredIssues.filter(i => i.status === 'In Progress').length})</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span>Resolved ({filteredIssues.filter(i => i.status === 'Resolved').length})</span>
+                </div>
+              </div>
+              <div className="text-gray-500">
+                Total: {filteredIssues.length} issues
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
