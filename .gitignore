@@ -1,0 +1,14 @@
+node_modules/
+.env
+.DS_Store
+dist/
+.next/
+build/
+.vercel
+.env.local
+*.log
+
+# Project documentation and assets
+CivicTrack_ Issue Reporting Analysis_.md
+Evaluation_Criteria.md
+CivicTrack - 8 hours.png
