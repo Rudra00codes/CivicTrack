@@ -1,6 +1,6 @@
 # 🏙️ CivicTrack: Empowering Communities, One Report at a Time
 
-![CivicTrack Banner](./client/public/banner-placeholder.png) *<!-- Add your banner image here -->*
+![CivicTrack Banner](./client/src/assets/main.png) *<!-- Add your banner image here -->*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)](https://reactjs.org/)
@@ -11,7 +11,7 @@
 **Event:** Odoo x CGC Hackathon 2025  
 **Theme:** Smart Cities & Civic Engagement  
 **Duration:** 48 Hours  
-**Team:** [Your Team Name]  
+**Team:** NETRUNNERS  
 
 ## ❓ Problem Statement
 Modern cities face numerous civic challenges that often go unreported or unaddressed due to inefficient reporting mechanisms. Citizens need a simple, transparent way to report issues like potholes, broken streetlights, or garbage collection problems, while local authorities require a streamlined system to track and resolve these issues effectively.
