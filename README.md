@@ -151,10 +151,10 @@ graph TD
 
 | Role | Name | Contact |
 |------|------|---------|
-| Frontend Developer | [Your Name] | [Your Email] |
-| Backend Developer | [Team Member] | [Email] |
-| UI/UX Designer | [Team Member] | [Email] |
-| Project Manager | [Team Member] | [Email] |
+| Frontend Developer | Rudra Pratap Singh | rudra17122005@gmail.com |
+| Backend Developer | Anant Srivastava | anantl 1012006@gmail.com |
+| UI/UX Designer | Raj Bhardhan Singh | rajbardhansingh17@gmail.com |
+| Project Manager | Yugandhar Bhardwaj | 83yugandhar52@gmail.com |
 
 ## 🙏 Acknowledgements
 
