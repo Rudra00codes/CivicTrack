@@ -10,7 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-*.local
+
 
 # Editor directories and files
 .vscode/*
@@ -24,7 +24,7 @@ dist-ssr
 *.sw?
 
 
-# Project documentation and assets
-CivicTrack_ Issue Reporting Analysis_.md
-Evaluation_Criteria.md
-CivicTrack - 8 hours.png
+# # Project documentation and assets
+# CivicTrack_ Issue Reporting Analysis_.md
+# Evaluation_Criteria.md
+# CivicTrack - 8 hours.png
