@@ -20,7 +20,7 @@
     "@types/leaflet": "^1.9.20",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.11.0",
-    "firebase": "^12.0.0",
+    "firebase": "^10.14.1",
     "leaflet": "^1.9.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

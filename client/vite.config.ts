@@ -22,7 +22,12 @@ export default defineConfig({
         manualChunks: {
           vendor: ["react", "react-dom"],
           router: ["react-router-dom"],
-          firebase: ["firebase"],
+          firebase: [
+            "firebase/app",
+            "firebase/auth", 
+            "firebase/firestore",
+            "firebase/storage"
+          ],
           maps: ["leaflet", "react-leaflet"],
           ui: ["@headlessui/react", "@heroicons/react"]
         }
@@ -33,5 +38,13 @@ export default defineConfig({
   preview: {
     port: 4173,
     strictPort: true
+  },
+  optimizeDeps: {
+    include: [
+      "firebase/app",
+      "firebase/auth",
+      "firebase/firestore", 
+      "firebase/storage"
+    ]
   }
 });
