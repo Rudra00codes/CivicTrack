@@ -13,11 +13,15 @@
     "@clerk/clerk-react": "^5.38.1",
     "@headlessui/react": "^2.2.7",
     "@heroicons/react": "^2.2.0",
+    "@types/leaflet": "^1.9.20",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.11.0",
+    "firebase": "^12.0.0",
+    "leaflet": "^1.9.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.5.2",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.7.1"
   },
   "devDependencies": {
