@@ -171,5 +171,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <div align="center">
-  Made with ❤️ for better communities | © 2025 CivicTrack
+ <img width="1300" height="259" alt="footer" src="https://github.com/user-attachments/assets/b35e0782-c1ca-4009-9263-203a039b1d6b" />
 </div>
