@@ -3,7 +3,21 @@ import mongoose, { Document, Schema } from 'mongoose';
 const IssueSchema: Schema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  category: { type: String, required: true, enum: ["Roads", "Lighting", "Water Supply", "Cleanliness", "Public Safety", "Obstructions"] },
+  category: { 
+    type: String, 
+    required: true, 
+    enum: [
+      "Roads and Transportation", 
+      "Street Lighting", 
+      "Water Supply", 
+      "Waste Management", 
+      "Public Safety", 
+      "Parks and Recreation",
+      "Building and Construction",
+      "Noise Complaints",
+      "Other"
+    ] 
+  },
   location: {
     type: {
       type: String,

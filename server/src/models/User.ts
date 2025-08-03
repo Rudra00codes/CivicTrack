@@ -17,6 +17,14 @@ const UserSchema: Schema = new Schema({
   is_verified: { type: Boolean, default: false },
   verification_level: { type: String, enum: ['email', 'phone', 'id_document', 'biometric'], default: 'email' },
   role: { type: String, enum: ['citizen', 'admin', 'municipal_worker'], default: 'citizen' },
+  
+  // Email verification fields
+  verification_token: { type: String },
+  verification_token_expires: { type: Date },
+  
+  // Password reset fields
+  password_reset_token: { type: String },
+  password_reset_expires: { type: Date },
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
@@ -40,6 +48,15 @@ export interface IUser extends Document {
   is_verified: boolean;
   verification_level: string;
   role: string;
+  
+  // Email verification fields
+  verification_token?: string;
+  verification_token_expires?: Date;
+  
+  // Password reset fields
+  password_reset_token?: string;
+  password_reset_expires?: Date;
+  
   createdAt: Date;
   updatedAt: Date;
 }
