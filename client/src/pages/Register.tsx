@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GoogleSignIn from '../components/GoogleSignIn';
 
@@ -12,9 +12,18 @@ const Register = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl') || '/dashboard';
   
-  const { register } = useAuth();
+  const { register, isSignedIn } = useAuth();
   const navigate = useNavigate();
+
+  // If user is already signed in, redirect them
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate(returnUrl);
+    }
+  }, [isSignedIn, navigate, returnUrl]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -36,7 +45,7 @@ const Register = () => {
 
     try {
       await register(formData.email, formData.password, formData.username);
-      navigate('/dashboard');
+      navigate(returnUrl);
     } catch (error: any) {
       setError(error.message || 'Registration failed');
     } finally {
@@ -55,7 +64,10 @@ const Register = () => {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
-          <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link 
+            to={`/login${returnUrl !== '/dashboard' ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`} 
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
             sign in to existing account
           </Link>
         </p>

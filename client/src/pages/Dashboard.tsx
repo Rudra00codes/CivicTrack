@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getIssues } from "../services/issueService";
 import { IIssue } from "../types";
+import BackgroundWrapper from "../components/BackgroundWrapper";
 
 
 /**
@@ -94,17 +95,20 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <p className="mt-2">Loading dashboard...</p>
+      <BackgroundWrapper variant="dots">
+        <div className="max-w-6xl mx-auto p-6">
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p className="mt-2">Loading dashboard...</p>
+          </div>
         </div>
-      </div>
+      </BackgroundWrapper>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <BackgroundWrapper variant="dots">
+      <div className="max-w-6xl mx-auto p-6">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
@@ -357,6 +361,7 @@ const Dashboard = () => {
         </div>
       )}
     </div>
+    </BackgroundWrapper>
   );
 };
 
