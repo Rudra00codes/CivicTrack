@@ -1,10 +1,26 @@
 import { Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Navigation, defaultNavItems, defaultUserMenuItems } from "./common/Navigation";
 import { HelpButton } from "./common/HelpSystem";
 import { useToastHelpers } from "./common/Toast";
+import { useSmoothScroll } from "../hooks/useSmoothScroll";
+import { ChevronUpIcon } from "@heroicons/react/24/outline";
 
 const Layout = () => {
   const { success } = useToastHelpers();
+  const { scrollToTop } = useSmoothScroll();
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  // Show/hide back to top button based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      setShowBackToTop(scrollTop > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Enhanced navigation items with help integration
   const navItems = [
@@ -77,6 +93,17 @@ const Layout = () => {
           </div>
         </div>
       </footer>
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          aria-label="Back to top"
+        >
+          <ChevronUpIcon className="h-5 w-5" />
+        </button>
+      )}
     </div>
   );
 };

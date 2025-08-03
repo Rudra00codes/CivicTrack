@@ -1,6 +1,6 @@
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../config/firebase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface GoogleSignInProps {
   onSuccess?: () => void;
@@ -9,6 +9,8 @@ interface GoogleSignInProps {
 
 const GoogleSignIn = ({ onSuccess, onError }: GoogleSignInProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl') || '/dashboard';
 
   const handleGoogleSignIn = async () => {
     try {
@@ -18,7 +20,7 @@ const GoogleSignIn = ({ onSuccess, onError }: GoogleSignInProps) => {
       if (onSuccess) {
         onSuccess();
       } else {
-        navigate('/dashboard');
+        navigate(returnUrl);
       }
     } catch (error: any) {
       const errorMessage = error.message || 'Google sign-in failed';
