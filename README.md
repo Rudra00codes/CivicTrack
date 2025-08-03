@@ -403,10 +403,9 @@ DELETE /api/upload/:publicId        - Delete uploaded image
 | Role | Name | Contact | Profile |
 |------|------|---------|---------|
 | **🚀 Frontend Developer & Team Lead** | Rudra Pratap Singh | rudra17122005@gmail.com | ![Rudra](https://avatars.githubusercontent.com/Rudra00codes?s=50) |
-| **⚙️ Backend Developer & DevOps** | Anant Srivastava | anant11012006@gmail.com | ![Anant](https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face&auto=format) |
+| **⚙️ Backend Developer & DevOps** | Anant Srivastava | anant11012006@gmail.com | ![Anant](https://avatars.githubusercontent.com/u/179017319?s=50) |
 | **🎨 UI/UX Designer & Frontend** | Raj Bhardhan Singh | rajbardhansingh17@gmail.com | ![Raj](https://avatars.githubusercontent.com/u/168809688?s=50) |
-) |
-| **📋 Project Manager & Strategy** | Yugandhar Bhardwaj | 83yugandhar52@gmail.com | ![Yugandhar](https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=50&h=50&fit=crop&crop=face&auto=format) |
+| **📋 Project Manager & Strategy** | Yugandhar Bhardwaj | 83yugandhar52@gmail.com | ![Yugandhar]() |
 
 <details>
 <summary><strong>🏆 Team NETRUNNERS - Core Strengths</strong> (Click to expand)</summary>
