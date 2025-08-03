@@ -32,6 +32,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    if (!auth) {
+      console.warn('Firebase Auth is not initialized. Authentication features will be disabled.');
+      setIsLoaded(true);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
         setUser({
@@ -50,6 +56,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
+    if (!auth) {
+      throw new Error('Authentication is not available. Please check your Firebase configuration.');
+    }
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
@@ -58,6 +67,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const register = async (email: string, password: string, displayName: string) => {
+    if (!auth) {
+      throw new Error('Authentication is not available. Please check your Firebase configuration.');
+    }
     try {
       const { user: firebaseUser } = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(firebaseUser, { displayName });
@@ -75,6 +87,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
+    if (!auth) {
+      throw new Error('Authentication is not available. Please check your Firebase configuration.');
+    }
     try {
       await signOut(auth);
     } catch (error: any) {

@@ -5,6 +5,8 @@ import { AuthProvider } from "./context/AuthContext";
 import Loading from "./components/common/Loading";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ToastProvider } from "./components/common/Toast";
+import ConfigurationError from "./components/ConfigurationError";
+import { auth } from "./config/firebase";
 
 // Lazy load components for better performance
 const Home = lazy(() => import("./pages/Home"));
@@ -16,6 +18,11 @@ const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 
 function App() {
+  // Show configuration error if Firebase is not properly configured
+  if (!auth) {
+    return <ConfigurationError />;
+  }
+
   return (
     <ErrorBoundary>
       <ToastProvider position="top-right" maxToasts={5}>

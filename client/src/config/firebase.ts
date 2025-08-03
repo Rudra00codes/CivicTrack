@@ -4,16 +4,33 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import config from './env';
 
-// Initialize Firebase
-const app = initializeApp(config.firebase);
+// Check if Firebase configuration is available
+const isFirebaseConfigured = config.firebase.apiKey && 
+                             config.firebase.authDomain && 
+                             config.firebase.projectId;
 
-// Initialize Firebase Authentication and get a reference to the service
-export const auth = getAuth(app);
+let app: any = null;
+let auth: any = null;
+let db: any = null;
+let storage: any = null;
 
-// Initialize Cloud Firestore and get a reference to the service
-export const db = getFirestore(app);
+if (isFirebaseConfigured) {
+  try {
+    // Initialize Firebase
+    app = initializeApp(config.firebase);
+    
+    // Initialize Firebase services
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+  } catch (error) {
+    console.error('Failed to initialize Firebase:', error);
+  }
+} else {
+  console.warn('Firebase configuration is incomplete. Some features may not work.');
+  console.warn('Please check your environment variables in Vercel dashboard.');
+}
 
-// Initialize Cloud Storage and get a reference to the service
-export const storage = getStorage(app);
-
+// Export with fallbacks
+export { auth, db, storage };
 export default app;

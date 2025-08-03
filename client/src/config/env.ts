@@ -47,7 +47,14 @@ const requiredEnvVars = [
 const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
 if (missingVars.length > 0) {
   if (config.isProduction) {
-    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+    console.error(`Missing required environment variables: ${missingVars.join(', ')}`);
+    console.error('Please set these environment variables in your Vercel dashboard:');
+    console.error('- Go to your Vercel project settings');
+    console.error('- Navigate to Environment Variables');
+    console.error('- Add the missing Firebase configuration variables');
+    
+    // Don't throw error in production, just log warnings
+    // This prevents the app from completely breaking
   } else {
     console.warn('Missing environment variables (development mode):', missingVars);
   }
