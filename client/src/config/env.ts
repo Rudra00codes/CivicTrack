@@ -19,15 +19,15 @@ interface Config {
 }
 
 const config: Config = {
-  apiUrl: import.meta.env.VITE_API_URL || 'https://your-backend-api.herokuapp.com/api',
+  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   firebase: {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAqQXJQRQOhO2PrpLHw1spwTy0GFZ0W2Yg",
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "odoo-civictrack.firebaseapp.com",
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "odoo-civictrack",
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "odoo-civictrack.firebasestorage.app",
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "257569925708",
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:257569925708:web:17d37d9c944b74cb5e62e9",
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-3GSMVHTNZJ",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "",
   },
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
@@ -43,10 +43,13 @@ const requiredEnvVars = [
   'VITE_FIREBASE_APP_ID',
 ];
 
-if (config.isProduction) {
-  const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
-  if (missingVars.length > 0) {
-    console.error('Missing required environment variables:', missingVars);
+// Always validate in all environments
+const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
+if (missingVars.length > 0) {
+  if (config.isProduction) {
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+  } else {
+    console.warn('Missing environment variables (development mode):', missingVars);
   }
 }
 
