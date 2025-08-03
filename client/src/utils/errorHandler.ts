@@ -2,6 +2,8 @@
  * Custom error classes for better error handling and user experience
  */
 
+import logger from './logger';
+
 export class AuthError extends Error {
   constructor(message: string, public code?: string) {
     super(message);
@@ -107,11 +109,9 @@ export const errorHandler = {
    * Generic error logger
    */
   logError: (error: Error, context?: string) => {
-    console.error(`[${context || 'Application Error'}]:`, {
+    logger.error(error.message, context, {
       name: error.name,
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString()
+      stack: import.meta.env.DEV ? error.stack : undefined,
     });
   }
 };
