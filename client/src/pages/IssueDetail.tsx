@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getIssueById, reportIssue } from "../services/issueService";
 import { IIssue } from "../types";
+import BackgroundWrapper from "../components/BackgroundWrapper";
+import logger from "../utils/logger";
 
 const IssueDetail = () => {
   const { id } = useParams();
@@ -23,7 +25,7 @@ const IssueDetail = () => {
       const { data } = await getIssueById(issueId);
       setIssue(data);
     } catch (error) {
-      console.error('Error fetching issue:', error);
+      logger.error('Error fetching issue', 'IssueDetail', { issueId, error });
       navigate('/');
     } finally {
       setLoading(false);
@@ -32,7 +34,7 @@ const IssueDetail = () => {
 
   const handleUpvote = () => {
     // TODO: Implement upvote functionality
-    console.log('Upvote clicked');
+    logger.debug('Upvote action triggered', 'IssueDetail', { issueId: id });
   };
 
   const handleReportSpam = () => {
@@ -50,7 +52,7 @@ const IssueDetail = () => {
           setSpamReason('');
         })
         .catch((error) => {
-          console.error('Error reporting spam:', error);
+          logger.error('Error reporting spam', 'IssueDetail', { issueId: id, error });
           alert('Failed to report spam. Please try again.');
         });
     }
@@ -84,7 +86,8 @@ const IssueDetail = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <BackgroundWrapper variant="subtle">
+      <div className="max-w-4xl mx-auto p-6">
       {/* Header */}
       <div className="mb-6">
         <button 
@@ -223,7 +226,8 @@ const IssueDetail = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </BackgroundWrapper>
   );
 };
 

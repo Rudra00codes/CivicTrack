@@ -4,6 +4,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import logger from '../../utils/logger';
 import { 
   Bars3Icon, 
   XMarkIcon, 
@@ -387,7 +388,7 @@ export const defaultUserMenuItems: NavItem[] = [
     label: 'Sign Out',
     onClick: () => {
       // Handle sign out
-      console.log('Sign out clicked');
+      logger.debug('Sign out action triggered', 'Navigation');
     },
     icon: <ArrowRightOnRectangleIcon className="h-5 w-5" />
   }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import logger from "../utils/logger";
 
 interface AdminStats {
   totalIssues: number;
@@ -170,11 +171,11 @@ const AdminDashboard = () => {
   const handleApproveIssue = async (issueId: string) => {
     try {
       // API call to approve issue
-      console.log(`Approving issue ${issueId}`);
+      logger.info('Approving issue', 'AdminDashboard', { issueId });
       setFlaggedIssues(prev => prev.filter(issue => issue.id !== issueId));
       alert('Issue approved successfully');
     } catch (error) {
-      console.error('Error approving issue:', error);
+      logger.error('Error approving issue', 'AdminDashboard', { issueId, error });
       alert('Failed to approve issue');
     }
   };
@@ -185,11 +186,11 @@ const AdminDashboard = () => {
   const handleRejectIssue = async (issueId: string) => {
     try {
       // API call to reject/remove issue
-      console.log(`Rejecting issue ${issueId}`);
+      logger.info('Rejecting issue', 'AdminDashboard', { issueId });
       setFlaggedIssues(prev => prev.filter(issue => issue.id !== issueId));
       alert('Issue rejected and removed');
     } catch (error) {
-      console.error('Error rejecting issue:', error);
+      logger.error('Error rejecting issue', 'AdminDashboard', { issueId, error });
       alert('Failed to reject issue');
     }
   };
@@ -200,13 +201,13 @@ const AdminDashboard = () => {
   const handleToggleUserBan = async (userId: string, shouldBan: boolean) => {
     try {
       // API call to ban/unban user
-      console.log(`${shouldBan ? 'Banning' : 'Unbanning'} user ${userId}`);
+      logger.info(`${shouldBan ? 'Banning' : 'Unbanning'} user`, 'AdminDashboard', { userId, shouldBan });
       setUsers(prev => prev.map(user => 
         user.id === userId ? { ...user, isBanned: shouldBan } : user
       ));
       alert(`User ${shouldBan ? 'banned' : 'unbanned'} successfully`);
     } catch (error) {
-      console.error('Error updating user ban status:', error);
+      logger.error('Error updating user ban status', 'AdminDashboard', { userId, shouldBan, error });
       alert('Failed to update user status');
     }
   };
