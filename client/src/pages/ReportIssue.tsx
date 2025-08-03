@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useIssueActions } from "../hooks/useIssues";
 import { validators } from "../utils/validation";
 import { errorHandler } from "../utils/errorHandler";
 import { compressImage } from "../utils/imageUtils";
+import { sanitizeInput, validateFileUpload } from "../utils/security";
 import { Input, Textarea, Select } from "../components/common/FormComponents";
 import { useToastHelpers } from "../components/common/Toast";
 import { Breadcrumb } from "../components/common/Navigation";
+import logger from "../utils/logger";
 import { 
   PhotoIcon, 
   MapPinIcon, 
@@ -40,20 +42,31 @@ const ReportIssue = () => {
   });
   
   const [images, setImages] = useState<File[]>([]);
-  const [locationText, setLocationText] = useState('');
+  const [locationText, setLocationText] = useState('Zirakpur, SAS Nagar, Punjab 140603');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [currentStep, setCurrentStep] = useState(1);
 
+  // Set initial coordinates for Zirakpur to prevent location validation error
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      location: {
+        type: 'Point',
+        coordinates: [76.8205, 30.6425] // Zirakpur coordinates [longitude, latitude]
+      }
+    }));
+  }, []);
+
   const categories = [
-    { value: 'infrastructure', label: 'Infrastructure (Roads, Sidewalks)' },
-    { value: 'lighting', label: 'Street Lighting' },
-    { value: 'water', label: 'Water Supply & Drainage' },
-    { value: 'sanitation', label: 'Cleanliness & Waste' },
-    { value: 'safety', label: 'Public Safety' },
-    { value: 'traffic', label: 'Traffic & Transportation' },
-    { value: 'environment', label: 'Environmental Issues' },
-    { value: 'utilities', label: 'Utilities & Services' },
-    { value: 'other', label: 'Other' }
+    { value: 'Roads and Transportation', label: 'Roads and Transportation' },
+    { value: 'Street Lighting', label: 'Street Lighting' },
+    { value: 'Water Supply', label: 'Water Supply' },
+    { value: 'Waste Management', label: 'Waste Management' },
+    { value: 'Public Safety', label: 'Public Safety' },
+    { value: 'Parks and Recreation', label: 'Parks and Recreation' },
+    { value: 'Building and Construction', label: 'Building and Construction' },
+    { value: 'Noise Complaints', label: 'Noise Complaints' },
+    { value: 'Other', label: 'Other' }
   ];
 
   const priorityOptions = [
@@ -77,9 +90,11 @@ const ReportIssue = () => {
         [name]: (e.target as HTMLInputElement).checked
       }));
     } else {
+      // Sanitize input to prevent XSS
+      const sanitizedValue = sanitizeInput(value);
       setFormData(prev => ({
         ...prev,
-        [name]: value
+        [name]: sanitizedValue
       }));
       
       // Clear validation error when user starts typing
@@ -100,6 +115,15 @@ const ReportIssue = () => {
       return;
     }
 
+    // Validate each file
+    for (const file of files) {
+      const validation = validateFileUpload(file);
+      if (!validation.isValid) {
+        showError(validation.error || 'Invalid file', 'Upload failed');
+        return;
+      }
+    }
+
     try {
       // Compress images for better performance
       const compressedFiles = await Promise.all(
@@ -107,7 +131,7 @@ const ReportIssue = () => {
           try {
             return await compressImage(file, { quality: 0.8, maxWidth: 1920 });
           } catch (error) {
-            console.warn('Failed to compress image:', file.name, error);
+            logger.warn('Failed to compress image', 'Image Upload', { fileName: file.name, error });
             return file; // Use original if compression fails
           }
         })
@@ -116,6 +140,7 @@ const ReportIssue = () => {
       setImages(prev => [...prev, ...compressedFiles]);
       success(`Added ${files.length} image${files.length > 1 ? 's' : ''}`, 'Upload successful');
     } catch (error) {
+      logger.error('Failed to process images', 'Image Upload', error);
       showError('Failed to process images', 'Please try again');
     }
   };

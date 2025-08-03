@@ -12,6 +12,7 @@ import {
   DocumentTextIcon,
   ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
+import { sanitizeHTML } from '../../utils/security';
 
 interface HelpItem {
   id: string;
@@ -345,7 +346,7 @@ export const HelpModal = ({ isOpen, onClose }: HelpModalProps) => {
                         
                         <div 
                           className="prose max-w-none"
-                          dangerouslySetInnerHTML={{ __html: selectedItem.content }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHTML(selectedItem.content) }}
                         />
                       </div>
                     ) : (

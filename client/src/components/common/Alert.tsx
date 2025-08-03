@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { sanitizeHTML } from '../../utils/security';
 
 interface AlertProps {
   type: 'success' | 'error' | 'warning' | 'info';
@@ -100,7 +101,7 @@ const Alert = ({
             {typeof message === 'string' ? (
               <p>{message}</p>
             ) : (
-              <div dangerouslySetInnerHTML={{ __html: message }} />
+              <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(message) }} />
             )}
           </div>
 
