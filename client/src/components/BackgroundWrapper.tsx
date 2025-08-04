@@ -1,10 +1,11 @@
 import React from 'react';
 import { GridBackground, DotBackground } from './ui/grid-dot-background';
+import ShaderBackground from './ui/ShaderBackground';
 
 interface BackgroundWrapperProps {
   children: React.ReactNode;
   className?: string;
-  variant?: 'dots' | 'grid' | 'subtle';
+  variant?: 'dots' | 'grid' | 'subtle' | 'shader';
 }
 
 const BackgroundWrapper: React.FC<BackgroundWrapperProps> = ({ 
@@ -12,6 +13,20 @@ const BackgroundWrapper: React.FC<BackgroundWrapperProps> = ({
   className = '',
   variant = 'dots'
 }) => {
+  if (variant === 'shader') {
+    return (
+      <ShaderBackground
+        className={`min-h-screen w-full ${className}`}
+        backdropBlurAmount="sm"
+        color="#0ea5e9" // Blue color for civic theme
+      >
+        <div className="page-transition w-full">
+          {children}
+        </div>
+      </ShaderBackground>
+    );
+  }
+
   if (variant === 'dots') {
     return (
       <DotBackground

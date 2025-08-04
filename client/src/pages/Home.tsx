@@ -103,21 +103,21 @@ const Home = () => {
   }
 
   return (
-    <BackgroundWrapper variant="grid">
+    <BackgroundWrapper variant="shader">
       <div className="min-h-screen p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Bento Grid Layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 sm:gap-6">
           
           {/* Hero Card - Large */}
-          <div className="lg:col-span-2 xl:col-span-3 lg:row-span-2 bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/10 rounded-3xl"></div>
+          <div className="lg:col-span-2 xl:col-span-3 lg:row-span-2 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
             <div className="relative z-10">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="h-8 w-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <div className="h-8 w-8 bg-white/30 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/20">
                   <ExclamationTriangleIcon className="h-5 w-5" />
                 </div>
-                <span className="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
+                <span className="text-sm font-medium bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/30">
                   CivicTrack
                 </span>
               </div>
@@ -133,7 +133,7 @@ const Home = () => {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={navigateToReportIssue}
-                  className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center space-x-2"
+                  className="bg-white/90 backdrop-blur-sm text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-white hover:shadow-xl transition-all border border-white/60 shadow-lg flex items-center justify-center space-x-2"
                 >
                   <PlusIcon className="h-5 w-5" />
                   <span>Report Issue</span>
@@ -141,24 +141,20 @@ const Home = () => {
                 {!isSignedIn && (
                   <Link
                     to="/login"
-                    className="bg-white/20 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/30 transition-colors backdrop-blur-sm flex items-center justify-center"
+                    className="bg-white/30 backdrop-blur-md text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/40 transition-all border border-white/40 shadow-lg"
                   >
                     Sign In
                   </Link>
                 )}
               </div>
             </div>
-
-            {/* Decorative elements */}
-            <div className="absolute -top-10 -right-10 h-40 w-40 bg-white/10 rounded-full"></div>
-            <div className="absolute -bottom-8 -left-8 h-32 w-32 bg-white/5 rounded-full"></div>
           </div>
 
           {/* User Greeting Card - if signed in */}
           {isSignedIn && (
-            <div className="lg:col-span-2 xl:col-span-2 bg-white rounded-3xl p-6 shadow-sm border">
+            <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl">
               {/* Authentication Status Demo - Integrated */}
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+              <div className="bg-green-50/80 backdrop-blur-sm border border-green-200/60 rounded-lg p-3 mb-4">
                 <h4 className="font-semibold text-green-800 text-sm mb-1">
                   🔐 Authentication Status: ✅ Signed In
                 </h4>
@@ -182,13 +178,13 @@ const Home = () => {
                 </div>
               </div>
               
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4">
+              <div className="bg-gradient-to-r from-green-50/80 to-emerald-50/80 backdrop-blur-sm rounded-2xl p-4 border border-green-200/40">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl font-bold text-green-600">12</p>
                     <p className="text-green-700 text-sm">Issues Reported</p>
                   </div>
-                  <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <div className="h-12 w-12 bg-green-100/80 backdrop-blur-sm rounded-full flex items-center justify-center border border-green-200/60">
                     <ChartBarIcon className="h-6 w-6 text-green-600" />
                   </div>
                 </div>
@@ -197,10 +193,10 @@ const Home = () => {
           )}
 
           {/* Search/Filter Card */}
-          <div className={`${isSignedIn ? 'xl:col-span-1' : 'lg:col-span-2 xl:col-span-3'} bg-white rounded-3xl p-6 shadow-sm border`}>
+          <div className={`${isSignedIn ? 'xl:col-span-1' : 'lg:col-span-2 xl:col-span-3'} bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl`}>
             {/* Authentication Status Demo - For non-signed in users */}
             {!isSignedIn && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+              <div className="bg-green-50/80 backdrop-blur-sm border border-green-200/60 rounded-lg p-3 mb-4">
                 <h4 className="font-semibold text-green-800 text-sm mb-1">
                   🔐 Authentication Status: ❌ Not Signed In
                 </h4>
@@ -226,7 +222,7 @@ const Home = () => {
                 <select 
                   value={filters.category} 
                   onChange={(e) => setFilters({...filters, category: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/40 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-lg"
                 >
                   <option value="">All Categories</option>
                   <option value="Roads">Roads</option>
@@ -243,7 +239,7 @@ const Home = () => {
                 <select 
                   value={filters.distance} 
                   onChange={(e) => setFilters({...filters, distance: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/40 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-lg"
                 >
                   <option value="1000">1 km</option>
                   <option value="3000">3 km</option>
@@ -252,16 +248,18 @@ const Home = () => {
                 </select>
               </div>
 
-              <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all">
+              <button className="w-full bg-gradient-to-r from-blue-600/80 to-blue-700/80 backdrop-blur-sm text-white py-3 rounded-xl font-semibold hover:from-blue-700/90 hover:to-blue-800/90 transition-all border border-blue-500/40 shadow-lg">
                 Apply Filters
               </button>
             </div>
           </div>
 
           {/* Statistics Card */}
-          <div className="lg:col-span-2 xl:col-span-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 text-white relative overflow-hidden">
+          <div className="lg:col-span-2 xl:col-span-2 bg-white/10 backdrop-blur-xl rounded-3xl p-6 text-white relative overflow-hidden border border-white/20 shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/60 to-teal-600/60 rounded-3xl"></div>
+            <div className="relative z-10">
             <div className="absolute top-4 right-4">
-              <ChartBarIcon className="h-8 w-8 text-white/30" />
+              <ChartBarIcon className="h-8 w-8 text-white/50" />
             </div>
             
             <h3 className="font-semibold mb-6 text-emerald-100">Community Impact</h3>
@@ -284,19 +282,20 @@ const Home = () => {
                 <p className="text-emerald-200 text-sm">Communities</p>
               </div>
             </div>
+            </div>
 
-            <div className="absolute -bottom-6 -right-6 h-24 w-24 bg-white/10 rounded-full"></div>
+            <div className="absolute -bottom-6 -right-6 h-24 w-24 bg-white/20 backdrop-blur-sm rounded-full border border-white/30"></div>
           </div>
 
           {/* Map Card */}
-          <div className="lg:col-span-2 xl:col-span-4 lg:row-span-1 bg-white rounded-3xl overflow-hidden shadow-sm border">
-            <div className="p-6 border-b border-gray-200">
+          <div className="lg:col-span-2 xl:col-span-4 lg:row-span-1 bg-white/20 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/30 shadow-2xl">
+            <div className="p-6 border-b border-white/20 bg-white/10 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <MapPinIcon className="h-5 w-5 text-gray-600" />
                   <h3 className="font-semibold text-gray-900">Issues Near You</h3>
                 </div>
-                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                <span className="text-sm text-gray-600 bg-white/60 backdrop-blur-sm px-3 py-1 rounded-full border border-white/40">
                   {issues.length} found
                 </span>
               </div>
@@ -349,7 +348,7 @@ const Home = () => {
           </div>
 
           {/* Recent Issues Card */}
-          <div className="lg:col-span-2 xl:col-span-2 bg-white rounded-3xl p-6 shadow-sm border">
+          <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl">
             <div className="flex items-center space-x-2 mb-4">
               <ClockIcon className="h-5 w-5 text-gray-600" />
               <h3 className="font-semibold text-gray-900">Recent Reports</h3>
@@ -358,7 +357,7 @@ const Home = () => {
             <div className="space-y-4">
               {recentIssues.length > 0 ? (
                 recentIssues.map((issue) => (
-                  <div key={issue._id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-2xl">
+                  <div key={issue._id} className="flex items-start space-x-3 p-3 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/30">
                     <div className={`h-2 w-2 rounded-full mt-2 ${
                       issue.status === 'Resolved' ? 'bg-green-500' :
                       issue.status === 'In Progress' ? 'bg-yellow-500' :
@@ -388,30 +387,30 @@ const Home = () => {
           </div>
 
           {/* Quick Actions Card */}
-          <div className="lg:col-span-2 xl:col-span-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl p-6 text-white relative overflow-hidden">
+          <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-6 text-gray-800 relative border border-white/30 shadow-2xl">
+            <div className="relative z-10">
             <div className="absolute top-4 right-4">
-              <UserGroupIcon className="h-8 w-8 text-white/30" />
+              <UserGroupIcon className="h-8 w-8 text-gray-600/70" />
             </div>
             
-            <h3 className="font-semibold mb-4 text-purple-100">Take Action</h3>
+            <h3 className="font-semibold mb-4 text-gray-800">Take Action</h3>
             
             <div className="space-y-3">
               <button
                 onClick={navigateToReportIssue}
-                className="block w-full bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-medium text-center transition-colors backdrop-blur-sm"
+                className="block w-full bg-white/40 hover:bg-white/50 text-gray-800 py-3 px-4 rounded-xl font-medium text-center transition-all backdrop-blur-md border border-white/50 shadow-lg hover:shadow-xl"
               >
                 Report New Issue
               </button>
               
               <Link
                 to="/dashboard"
-                className="block w-full bg-white/10 hover:bg-white/20 text-white py-3 px-4 rounded-xl font-medium text-center transition-colors backdrop-blur-sm"
+                className="block w-full bg-white/30 hover:bg-white/40 text-gray-800 py-3 px-4 rounded-xl font-medium text-center transition-all backdrop-blur-md border border-white/40 shadow-lg hover:shadow-xl"
               >
                 View Dashboard
               </Link>
             </div>
-
-            <div className="absolute -bottom-4 -left-4 h-20 w-20 bg-white/10 rounded-full"></div>
+            </div>
           </div>
 
           </div>
