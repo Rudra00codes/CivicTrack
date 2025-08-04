@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "./assets/fonts/clash-display.css";
 @import "tailwindcss";
 
 /* Smooth scrolling for the entire page */
@@ -8,7 +9,8 @@ html {
 }
 
 * {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Clash Display', 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.025em; /* Increased letter spacing globally */
 }
 
 body {
@@ -47,6 +49,27 @@ a, button, .hover-smooth {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Letter spacing utility classes for fine-tuning */
+.letter-spacing-tight { letter-spacing: -0.025em; }
+.letter-spacing-normal { letter-spacing: 0; }
+.letter-spacing-wide { letter-spacing: 0.025em; }
+.letter-spacing-wider { letter-spacing: 0.05em; }
+.letter-spacing-widest { letter-spacing: 0.1em; }
+
+/* Specific letter spacing for different text types */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: 0.015em; /* Slightly less spacing for headings */
+}
+
+p, span, div {
+  letter-spacing: 0.025em; /* Standard spacing for body text */
+}
+
+button {
+  letter-spacing: 0.05em; /* More spacing for buttons */
+  text-transform: uppercase;
 }
 
 /* Custom component classes */

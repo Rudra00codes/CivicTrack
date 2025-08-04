@@ -1,0 +1,96 @@
+/**
+* @license
+*
+* Font Family: Clash Display
+* Designed by: Indian Type Foundry
+* URL: https://www.fontshare.com/fonts/clash-display
+* © 2025 Indian Type Foundry
+*
+* Clash Display Extralight 
+* Clash Display Light 
+* Clash Display Regular 
+* Clash Display Medium 
+* Clash Display Semibold 
+* Clash Display Bold 
+* Clash Display Variable (Variable font)
+*
+*/
+
+/* Single family definition with all weights */
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Extralight.woff2') format('woff2'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Extralight.woff') format('woff'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Extralight.ttf') format('truetype');
+  font-weight: 200;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Light.woff2') format('woff2'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Light.woff') format('woff'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Regular.woff2') format('woff2'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Regular.woff') format('woff'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Medium.woff2') format('woff2'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Medium.woff') format('woff'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Semibold.woff2') format('woff2'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Semibold.woff') format('woff'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Semibold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Bold.woff2') format('woff2'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Bold.woff') format('woff'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+  font-style: normal; 
+}
+
+/**
+* Variable font version (recommended for better performance)
+* You can control variable axes as shown below:
+* font-variation-settings: 'wght' 400;
+*
+* Available axes:
+* 'wght' (range from 200.0 to 700.0)
+*/
+@font-face {
+  font-family: 'Clash Display Variable';
+  src: url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Variable.woff2') format('woff2-variations'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Variable.woff') format('woff-variations'),
+       url('/ClashDisplay_Family/Fonts/WEB/fonts/ClashDisplay-Variable.ttf') format('truetype-variations');
+  font-weight: 200 700;
+  font-display: swap;
+  font-style: normal;
+}
