@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 // Clerk handles auth, no need for useAuth
 import { useUser } from "@clerk/clerk-react";
 import { useIssueActions } from "../hooks/useIssues";
+import BackgroundWrapper from "../components/BackgroundWrapper";
 import { validators } from "../utils/validation";
 import { errorHandler } from "../utils/errorHandler";
 import { compressImage } from "../utils/imageUtils";
@@ -290,11 +291,12 @@ const ReportIssue = () => {
   };
 
   return (
-  <div className="max-w-4xl mx-auto p-2 sm:p-4 md:p-6 w-full overflow-x-hidden">
-      {/* Breadcrumb */}
-      <div className="mb-6">
-        <Breadcrumb items={breadcrumbItems} />
-      </div>
+    <BackgroundWrapper variant="dots" className="py-6">
+      <div className="max-w-4xl mx-auto p-2 sm:p-4 md:p-6 w-full overflow-x-hidden">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
 
       {/* Header */}
       <div className="mb-8">
@@ -645,6 +647,7 @@ const ReportIssue = () => {
         </div>
       </form>
     </div>
+    </BackgroundWrapper>
   );
 };
 
