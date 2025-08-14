@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+// Clerk handles auth, no need for useAuth
+import { useUser } from "@clerk/clerk-react";
 import { useIssueActions } from "../hooks/useIssues";
 import { validators } from "../utils/validation";
 import { errorHandler } from "../utils/errorHandler";
@@ -19,7 +20,8 @@ import {
 
 const ReportIssue = () => {
   const navigate = useNavigate();
-  const { isSignedIn } = useAuth();
+  // Clerk handles isSignedIn
+  const { isSignedIn } = useUser();
   const { success, error: showError } = useToastHelpers();
   
   // Use the modular issue actions hook
@@ -45,6 +47,7 @@ const ReportIssue = () => {
   const [locationText, setLocationText] = useState('Zirakpur, SAS Nagar, Punjab 140603');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [currentStep, setCurrentStep] = useState(1);
+  const [submitState, setSubmitState] = useState<'idle' | 'success' | 'error'>('idle');
 
   // Set initial coordinates for Zirakpur to prevent location validation error
   useEffect(() => {
@@ -191,31 +194,23 @@ const ReportIssue = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!isSignedIn) {
       navigate('/login');
       return;
     }
-
-    // Clear previous errors
     clearError();
     setValidationErrors({});
-
+    setSubmitState('idle');
     const errors = validateForm();
-
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       showError('Please fix the errors below', 'Form validation failed');
       return;
     }
-
     try {
-      // Compress images before upload
       const compressedImages = await Promise.all(
         images.map(img => compressImage(img))
       );
-      
-      // Convert images to base64 for demo (in production, upload to cloud storage)
       const imageUrls = await Promise.all(
         compressedImages.map(img => {
           return new Promise<string>((resolve) => {
@@ -225,7 +220,6 @@ const ReportIssue = () => {
           });
         })
       );
-
       const issueData = {
         title: formData.title,
         description: formData.description,
@@ -234,12 +228,13 @@ const ReportIssue = () => {
         images: imageUrls,
         is_anonymous: formData.isAnonymous
       };
-
       const success = await createNewIssue(issueData);
       if (success) {
-        navigate('/dashboard');
+        setSubmitState('success');
+        setTimeout(() => navigate('/dashboard'), 1200);
       }
     } catch (err) {
+      setSubmitState('error');
       errorHandler.logError(err as Error, 'Issue Creation Form');
     }
   };
@@ -295,7 +290,7 @@ const ReportIssue = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+  <div className="max-w-4xl mx-auto p-2 sm:p-4 md:p-6 w-full overflow-x-hidden">
       {/* Breadcrumb */}
       <div className="mb-6">
         <Breadcrumb items={breadcrumbItems} />
@@ -342,7 +337,7 @@ const ReportIssue = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+  <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 sm:p-4 md:p-6 w-full max-w-2xl mx-auto flex flex-col gap-4 overflow-x-hidden">
         {/* Step 1: Issue Details */}
         {currentStep === 1 && (
           <div className="space-y-6">
@@ -600,33 +595,43 @@ const ReportIssue = () => {
             )}
           </div>
           
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mt-8 gap-3 w-full">
             <button
               type="button"
               onClick={() => navigate('/dashboard')}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="btn-outline w-full sm:w-auto"
             >
               Cancel
             </button>
-            
             {currentStep < 3 ? (
               <button
                 type="button"
                 onClick={nextStep}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="btn-primary w-full sm:w-auto"
               >
                 Next
               </button>
             ) : (
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+                className={`w-full sm:w-auto flex items-center justify-center transition-colors duration-200
+                  ${isSubmitting ? 'bg-blue-600 hover:bg-blue-700 text-white opacity-70 cursor-not-allowed' : ''}
+                  ${submitState === 'success' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}
+                  ${!isSubmitting && submitState !== 'success' ? 'btn-primary' : ''}`}
+                disabled={isSubmitting || submitState === 'success'}
               >
                 {isSubmitting ? (
                   <>
-                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                    </svg>
                     <span>Submitting...</span>
+                  </>
+                ) : submitState === 'success' ? (
+                  <>
+                    <CheckCircleIcon className="h-5 w-5 mr-2 text-white" />
+                    <span>Submitted!</span>
                   </>
                 ) : (
                   <>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useUser } from "@clerk/clerk-react";
 import { getIssues } from "../services/issueService";
 import { IIssue } from "../types";
 import BackgroundWrapper from "../components/BackgroundWrapper";
@@ -12,7 +12,7 @@ import BackgroundWrapper from "../components/BackgroundWrapper";
  * Features map view and distance-based filtering.
  */
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
   const [issues, setIssues] = useState<IIssue[]>([]);
   const [userIssues, setUserIssues] = useState<IIssue[]>([]);
   const [filter, setFilter] = useState<'all' | 'my-issues'>('all');
@@ -57,7 +57,7 @@ const Dashboard = () => {
               parseInt(distanceFilter)
             );
             setIssues(data);
-            setUserIssues(data.filter((issue: any) => issue.user._id === user?.uid));
+            setUserIssues(user ? data.filter((issue: any) => issue.user._id === user.id) : []);
           },
           () => {
             // Fallback: Use a default location (e.g., city center)
@@ -65,7 +65,7 @@ const Dashboard = () => {
             setUserLocation(defaultCoords);
             getIssues(defaultCoords.lat, defaultCoords.lng, parseInt(distanceFilter)).then(({ data }) => {
               setIssues(data);
-              setUserIssues(data.filter((issue: any) => issue.user._id === user?.uid));
+              setUserIssues(user ? data.filter((issue: any) => issue.user._id === user.id) : []);
             });
           }
         );
@@ -75,7 +75,7 @@ const Dashboard = () => {
         setUserLocation(defaultCoords);
         getIssues(defaultCoords.lat, defaultCoords.lng, parseInt(distanceFilter)).then(({ data }) => {
           setIssues(data);
-          setUserIssues(data.filter((issue: any) => issue.user._id === user?.uid));
+          setUserIssues(user ? data.filter((issue: any) => issue.user._id === user.id) : []);
         });
       }
     } catch (error) {
@@ -95,25 +95,28 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <BackgroundWrapper variant="dots">
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <p className="mt-2">Loading dashboard...</p>
+      <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+        <BackgroundWrapper variant="dots" className="py-6">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <p className="mt-4 text-gray-600">Loading dashboard...</p>
+            </div>
           </div>
-        </div>
-      </BackgroundWrapper>
+        </BackgroundWrapper>
+      </div>
     );
   }
 
   return (
-    <BackgroundWrapper variant="dots">
-      <div className="max-w-6xl mx-auto p-6">
+    <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+      <BackgroundWrapper variant="dots" className="py-10">
+      <div className="max-w-6xl mx-auto px-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">
-          Welcome back, {user?.displayName || 'User'}! Here's what's happening in your community.
+        <h1 className="text-3xl font-extrabold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-300 drop-shadow-sm">Dashboard</h1>
+        <p className="text-gray-300 max-w-2xl">
+          Welcome back, {user?.fullName || 'User'}! Here's what's happening in your community.
         </p>
       </div>
 
@@ -360,8 +363,9 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-    </div>
-    </BackgroundWrapper>
+  </div>
+  </BackgroundWrapper>
+  </div>
   );
 };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import logger from "../utils/logger";
 
@@ -38,7 +38,7 @@ interface User {
  * Features: Issue management, analytics, user moderation
  */
 const AdminDashboard = () => {
-  const { user, isSignedIn } = useAuth();
+  const { user, isSignedIn } = useUser();
   const navigate = useNavigate();
   
   // State management
@@ -56,11 +56,10 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     // Check if user is admin (in production, check user role from backend)
-    if (!isSignedIn || !user?.email?.includes('admin')) {
+    if (!isSignedIn || !user?.primaryEmailAddress?.emailAddress?.includes('admin')) {
       navigate('/dashboard');
       return;
     }
-    
     fetchAdminData();
   }, [isSignedIn, user, navigate]);
 
@@ -237,7 +236,7 @@ const AdminDashboard = () => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
-                Welcome, {user?.displayName || user?.email}
+                Welcome, {user?.fullName || user?.primaryEmailAddress?.emailAddress}
               </span>
             </div>
           </div>
