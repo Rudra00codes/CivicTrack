@@ -1,15 +1,20 @@
-import { Outlet } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { Navigation, defaultNavItems, defaultUserMenuItems } from "./common/Navigation";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { Navigation } from "./common/Navigation";
 import { HelpButton } from "./common/HelpSystem";
 import { useToastHelpers } from "./common/Toast";
 import { useSmoothScroll } from "../hooks/useSmoothScroll";
 import { ChevronUpIcon } from "@heroicons/react/24/outline";
+import { useUser, useAuth, useClerk } from "@clerk/clerk-react";
 
 const Layout = () => {
   const { success } = useToastHelpers();
   const { scrollToTop } = useSmoothScroll();
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const { user, isSignedIn, isLoaded } = useUser();
+  const { signOut } = useAuth();
+  const clerk = useClerk();
+  const navigate = useNavigate();
 
   // Show/hide back to top button based on scroll position
   useEffect(() => {
@@ -22,31 +27,58 @@ const Layout = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Enhanced navigation items with help integration
-  const navItems = [
-    ...defaultNavItems,
-    {
-      label: 'Help',
-      onClick: () => {
-        // This will be handled by the HelpButton component
-      },
-      component: <HelpButton />
+  // Build navigation items based on auth state
+  const navItems = useMemo(() => {
+    const items: any[] = [
+      { label: 'Home', href: '/' },
+    ];
+    if (isSignedIn) {
+      items.push(
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Report Issue', href: '/report-issue' },
+      );
+      if (user?.primaryEmailAddress?.emailAddress?.includes('admin')) {
+        items.push({ label: 'Admin', href: '/admin' });
+      }
     }
-  ];
+    items.push({ label: 'Help', onClick: () => {/* Help handled by HelpButton */}, component: <HelpButton /> });
+    return items;
+  }, [isSignedIn, user]);
 
-  // Enhanced user menu with sign out functionality
-  const userMenuItems = [
-    ...defaultUserMenuItems.slice(0, -1), // Remove the default sign out
-    {
-      label: 'Sign Out',
-      onClick: () => {
-        // Handle sign out with toast notification
-        success('Successfully signed out', 'See you soon!');
-        // Add actual sign out logic here
-      },
-      icon: defaultUserMenuItems[defaultUserMenuItems.length - 1].icon
+  // User menu items (or sign in/up) built from auth state
+  const userMenu = useMemo(() => {
+    if (!isLoaded) return undefined; // avoid flicker
+    if (isSignedIn && user) {
+      return {
+        name: user.fullName || user.firstName || 'User',
+        email: user.primaryEmailAddress?.emailAddress,
+        items: [
+          { label: 'Profile', href: '/profile' },
+          { label: 'Settings', href: '/settings' },
+          {
+            label: 'Sign Out',
+            onClick: async () => {
+              try {
+                await signOut();
+                success('Signed out', 'See you soon!');
+                navigate('/');
+              } catch (e) {
+                console.error('Sign out failed', e);
+              }
+            }
+          }
+        ]
+      };
     }
-  ];
+    // Signed out state: provide actions
+    return {
+      name: 'Guest',
+      items: [
+        { label: 'Sign In', onClick: () => clerk.openSignIn() },
+        { label: 'Sign Up', onClick: () => clerk.openSignUp() }
+      ]
+    };
+  }, [isSignedIn, isLoaded, user, signOut, success, clerk, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -61,11 +93,7 @@ const Layout = () => {
           )
         }}
         items={navItems}
-        userMenu={{
-          name: 'John Doe', // This should come from auth context
-          email: 'john@example.com',
-          items: userMenuItems
-        }}
+        userMenu={userMenu}
         sticky={true}
         className="shadow-sm"
       />
@@ -94,7 +122,7 @@ const Layout = () => {
         </div>
       </footer>
 
-      {/* Back to Top Button */}
+  {/* Back to Top Button */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
@@ -104,6 +132,8 @@ const Layout = () => {
           <ChevronUpIcon className="h-5 w-5" />
         </button>
       )}
+
+  {/* Auth debug panel (always enabled in dev) */}
     </div>
   );
 };

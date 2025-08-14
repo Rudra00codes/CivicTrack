@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { useAuth } from '../context/AuthContext';
+import { useUser, SignedIn, SignedOut } from "@clerk/clerk-react";
 import { useIssues } from '../hooks/useIssues';
 import { useProtectedNavigation } from '../hooks/useProtectedNavigation';
 import BackgroundWrapper from '../components/BackgroundWrapper';
@@ -26,7 +26,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const Home = () => {
-  const { isSignedIn, user } = useAuth();
+  const { user } = useUser();
   const { navigateToReportIssue } = useProtectedNavigation();
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [filters, setFilters] = useState({
@@ -104,13 +104,13 @@ const Home = () => {
 
   return (
     <BackgroundWrapper variant="shader">
-      <div className="min-h-screen p-4 sm:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen px-4 sm:px-8 lg:px-12 py-10 sm:py-14">
+        <div className="max-w-7xl mx-auto space-y-10">
           {/* Bento Grid Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 lg:gap-8">
           
           {/* Hero Card - Large */}
-          <div className="lg:col-span-2 xl:col-span-3 lg:row-span-2 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-2xl">
+          <div className="lg:col-span-2 xl:col-span-3 lg:row-span-2 rounded-3xl p-8 md:p-10 text-white relative overflow-hidden shadow-2xl space-y-4">
             <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
             <div className="relative z-10">
               <div className="flex items-center space-x-2 mb-4">
@@ -122,15 +122,15 @@ const Home = () => {
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">
+              <h1 className="text-4xl sm:text-5xl font-extrabold mb-6 leading-tight tracking-tight">
                 Building Better Communities Together
               </h1>
               
-              <p className="text-blue-100 mb-8 text-lg leading-relaxed">
+              <p className="text-blue-100 mb-10 text-lg md:text-xl leading-relaxed max-w-xl">
                 Report civic issues, track progress, and help make your neighborhood a better place to live.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={navigateToReportIssue}
                   className="bg-white/90 backdrop-blur-sm text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-white hover:shadow-xl transition-all border border-white/60 shadow-lg flex items-center justify-center space-x-2"
@@ -138,47 +138,44 @@ const Home = () => {
                   <PlusIcon className="h-5 w-5" />
                   <span>Report Issue</span>
                 </button>
-                {!isSignedIn && (
-                  <Link
-                    to="/login"
+                <SignedOut>
+                  <button
+                    onClick={() => {
+                      // Prefer sign up to encourage registration but allow switching inside modal
+                      try {
+                        // Clerk modals (fallback to route if modal unsupported)
+                        if (typeof window !== 'undefined' && (window as any).Clerk) {
+                          (window as any).Clerk.openSignIn();
+                        } else {
+                          // Fallback navigate to dedicated Clerk route
+                          window.location.href = '/sign-in';
+                        }
+                      } catch {
+                        window.location.href = '/sign-in';
+                      }
+                    }}
                     className="bg-white/30 backdrop-blur-md text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/40 transition-all border border-white/40 shadow-lg"
                   >
                     Sign In
-                  </Link>
-                )}
+                  </button>
+                </SignedOut>
               </div>
             </div>
           </div>
 
           {/* User Greeting Card - if signed in */}
-          {isSignedIn && (
-            <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl">
-              {/* Authentication Status Demo - Integrated */}
-              <div className="bg-green-50/80 backdrop-blur-sm border border-green-200/60 rounded-lg p-3 mb-4">
-                <h4 className="font-semibold text-green-800 text-sm mb-1">
-                  🔐 Authentication Status: ✅ Signed In
-                </h4>
-                <div className="text-green-700 text-xs">
-                  <p><strong>User ID:</strong> {user?.uid}</p>
-                  <p><strong>Email:</strong> {user?.email}</p>
-                  <p><strong>Display Name:</strong> {user?.displayName || 'Not set'}</p>
-                  <div className="mt-1 p-2 bg-green-100 rounded text-xs">
-                    ✅ You can now click "Report Issue" to go directly to the report page!
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4 mb-4">
+          <SignedIn>
+            <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-6 md:p-7 border border-white/30 shadow-2xl space-y-6">
+              <div className="flex items-center space-x-5 mb-5">
                 <div className="h-12 w-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
-                  {user?.email?.[0]?.toUpperCase() || 'U'}
+                  {user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Hello, {user?.email?.split('@')[0] || 'User'}!</h3>
+                  <h3 className="font-semibold text-gray-900">Hello, {user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User'}!</h3>
                   <p className="text-gray-500 text-sm">Welcome back to CivicTrack</p>
                 </div>
               </div>
-              
-              <div className="bg-gradient-to-r from-green-50/80 to-emerald-50/80 backdrop-blur-sm rounded-2xl p-4 border border-green-200/40">
+              <div className="bg-gradient-to-r from-green-50/80 to-emerald-50/80 backdrop-blur-sm rounded-2xl p-5 border border-green-200/40">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl font-bold text-green-600">12</p>
@@ -190,26 +187,16 @@ const Home = () => {
                 </div>
               </div>
             </div>
-          )}
+          </SignedIn>
 
           {/* Search/Filter Card */}
-          <div className={`${isSignedIn ? 'xl:col-span-1' : 'lg:col-span-2 xl:col-span-3'} bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl`}>
-            {/* Authentication Status Demo - For non-signed in users */}
-            {!isSignedIn && (
-              <div className="bg-green-50/80 backdrop-blur-sm border border-green-200/60 rounded-lg p-3 mb-4">
-                <h4 className="font-semibold text-green-800 text-sm mb-1">
-                  🔐 Authentication Status: ❌ Not Signed In
-                </h4>
-                <div className="text-green-700 text-xs">
-                  <p>Click "Report Issue" to test the authentication flow:</p>
-                  <ul className="list-disc list-inside mt-1 text-xs">
-                    <li>You'll be redirected to the login page</li>
-                    <li>After signing in, you'll return to the Report Issue page</li>
-                    <li>Test credentials: john@example.com / password123</li>
-                  </ul>
-                </div>
-              </div>
-            )}
+          <div className={`bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl`}>
+            <SignedIn>
+              <h3 className="font-semibold text-gray-900">Welcome back, {user?.fullName || 'User'}! Here's what's happening in your community.</h3>
+            </SignedIn>
+            <SignedOut>
+              {/* Removed verbose auth status demo card for cleaner UI */}
+            </SignedOut>
             
             <div className="flex items-center space-x-2 mb-4">
               <FunnelIcon className="h-5 w-5 text-gray-600" />
@@ -416,6 +403,8 @@ const Home = () => {
           </div>
         </div>
       </div>
+      
+      {/* Auth Test Component - Remove in production */}
     </BackgroundWrapper>
   );
 };
