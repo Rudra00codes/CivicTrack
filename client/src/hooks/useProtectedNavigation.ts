@@ -1,27 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+// Clerk handles auth, no need for useAuth
 
 export const useProtectedNavigation = () => {
   const navigate = useNavigate();
-  const { isSignedIn, isLoaded } = useAuth();
 
-  const navigateToProtectedRoute = (
-    route: string, 
-    redirectAfterAuth?: string
-  ) => {
-    if (!isLoaded) {
-      // Auth is still loading, wait before making decision
-      return;
-    }
-
-    if (isSignedIn) {
-      // User is authenticated, navigate to the requested route
-      navigate(route);
-    } else {
-      // User is not authenticated, redirect to login/register with return URL
-      const returnUrl = redirectAfterAuth || route;
-      navigate(`/login?returnUrl=${encodeURIComponent(returnUrl)}`);
-    }
+  // This hook should not handle Clerk state directly. Navigation logic should be handled in components using Clerk hooks.
+  const navigateToProtectedRoute = (route: string) => {
+    navigate(route);
   };
 
   const navigateToReportIssue = () => {
@@ -35,8 +20,6 @@ export const useProtectedNavigation = () => {
   return {
     navigateToProtectedRoute,
     navigateToReportIssue,
-    navigateToDashboard,
-    isSignedIn,
-    isLoaded
+    navigateToDashboard
   };
 };

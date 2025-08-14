@@ -6,7 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com https://www.gstatic.com https://vercel.live https://*.vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseapp.com https://*.googleapis.com https://*.firebase.com wss://*.firebaseio.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://vercel.live wss://ws-*.pusher.vercel-insights.com; frame-src 'self' https://accounts.google.com; object-src 'none'; base-uri 'self';" />
+    <!--
+      Updated CSP:
+      - Removed Firebase specific domains no longer in use.
+      - Added broad allowances for Clerk while we stabilize auth (script/connect/frame to https:).
+      TODO: After confirming Clerk loads, tighten by replacing wildcard https: with explicit Clerk domains:
+        script-src: https://*.clerk.services https://*.clerk.accounts
+        connect-src: https://*.clerk.services https://*.clerk.accounts https://api.clerk.com https://api.clerk.dev
+        frame-src: https://*.clerk.services https://*.clerk.accounts
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https: wss:; frame-src 'self' https:; object-src 'none'; base-uri 'self';" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
@@ -38,9 +47,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
-    <!-- DNS prefetch for Firebase -->
-    <link rel="dns-prefetch" href="https://firebaseapp.com" />
-    <link rel="dns-prefetch" href="https://googleapis.com" />
+  <!-- (Removed Firebase DNS prefetch; add Clerk domains here later if needed) -->
   </head>
   <body>
     <div id="root"></div>
