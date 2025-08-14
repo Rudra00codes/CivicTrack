@@ -98,10 +98,10 @@ const IssueDetail = () => {
         </button>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{issue.title}</h1>
         <div className="flex items-center space-x-4 text-sm text-gray-600">
-          <span>Category: {issue.category}</span>
+          <span>Category: {issue.category || 'Unknown'}</span>
           <span>•</span>
-          <span>Reported: {new Date(issue.createdAt).toLocaleDateString()}</span>
-          {!issue.is_anonymous && (
+          <span>Reported: {issue.createdAt ? new Date(issue.createdAt).toLocaleDateString() : 'N/A'}</span>
+          {!issue.is_anonymous && issue.user?.username && (
             <>
               <span>•</span>
               <span>By: {issue.user.username}</span>
@@ -144,7 +144,7 @@ const IssueDetail = () => {
                   className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                 >
                   <span>👍</span>
-                  <span>Upvote ({issue.upvotes.length})</span>
+                  <span>Upvote ({issue.upvotes?.length ?? 0})</span>
                 </button>
               </div>
               <button
@@ -175,8 +175,9 @@ const IssueDetail = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold mb-3">Location</h3>
             <p className="text-gray-600">
-              Lat: {issue.location.coordinates[1].toFixed(4)}, 
-              Lng: {issue.location.coordinates[0].toFixed(4)}
+              {Array.isArray(issue?.location?.coordinates) && issue.location.coordinates.length >= 2
+                ? <>Lat: {Number(issue.location.coordinates[1]).toFixed(4)}, Lng: {Number(issue.location.coordinates[0]).toFixed(4)}</>
+                : 'Location not available'}
             </p>
           </div>
 

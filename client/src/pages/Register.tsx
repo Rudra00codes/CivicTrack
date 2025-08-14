@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import GoogleSignIn from '../components/GoogleSignIn';
+// Removed Firebase Auth code and references due to migration to Clerk.
+// GoogleSignIn removed (obsolete)
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,15 +15,11 @@ const Register = () => {
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams.get('returnUrl') || '/dashboard';
   
-  const { register, isSignedIn } = useAuth();
+  // Removed Firebase Auth references
   const navigate = useNavigate();
 
   // If user is already signed in, redirect them
-  useEffect(() => {
-    if (isSignedIn) {
-      navigate(returnUrl);
-    }
-  }, [isSignedIn, navigate, returnUrl]);
+  // Removed redirect logic due to removal of Firebase Auth
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -44,7 +40,7 @@ const Register = () => {
     }
 
     try {
-      await register(formData.email, formData.password, formData.username);
+      // Registration logic has been removed
       navigate(returnUrl);
     } catch (error: any) {
       setError(error.message || 'Registration failed');
@@ -173,7 +169,7 @@ const Register = () => {
             </div>
 
             <div className="mt-6">
-              <GoogleSignIn onError={setError} />
+              {/* GoogleSignIn removed (obsolete) */}
             </div>
           </div>
         </div>
