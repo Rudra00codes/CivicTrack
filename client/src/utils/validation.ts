@@ -101,7 +101,18 @@ export const validators = {
    * Validates issue category
    */
   issueCategory: (category: string): ValidationResult => {
-    const validCategories = ['Roads', 'Lighting', 'Water Supply', 'Cleanliness', 'Public Safety', 'Obstructions'];
+    // Align with categories used in ReportIssue form
+    const validCategories = [
+      'Roads and Transportation',
+      'Street Lighting',
+      'Water Supply',
+      'Waste Management',
+      'Public Safety',
+      'Parks and Recreation',
+      'Building and Construction',
+      'Noise Complaints',
+      'Other'
+    ];
     const errors: string[] = [];
     
     if (!category) {
