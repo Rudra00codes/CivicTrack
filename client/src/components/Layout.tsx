@@ -85,7 +85,7 @@ const Layout = () => {
     : 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* True Glassmorphism Navbar - Fully Transparent with Backdrop Blur */}
       <header className={`
         fixed top-0 left-0 right-0 z-50
@@ -130,7 +130,7 @@ const Layout = () => {
                 {user?.primaryEmailAddress?.emailAddress?.includes('admin') && (
                   <Link 
                     to="/admin" 
-                    className={`${textColorClass} hover:text-purple-400 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-white/10 backdrop-blur-sm`}
+                    className={`${textColorClass} ${hoverTextColorClass} font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-white/10 backdrop-blur-sm`}
                   >
                     Admin
                   </Link>
@@ -173,7 +173,7 @@ const Layout = () => {
         </div>
       </header>
       
-      <main className="container mx-auto px-4 py-8">
+      <main>
         <Outlet />
       </main>
       
