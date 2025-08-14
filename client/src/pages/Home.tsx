@@ -92,7 +92,7 @@ const Home = () => {
   if (loading) {
     return (
       <BackgroundWrapper variant="dots">
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center pt-20">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading your community dashboard...</p>
@@ -104,7 +104,7 @@ const Home = () => {
 
   return (
     <BackgroundWrapper variant="shader">
-      <div className="min-h-screen px-4 sm:px-8 lg:px-12 py-10 sm:py-14">
+      <div className="min-h-screen px-4 sm:px-8 lg:px-12 py-10 sm:py-14 pt-20">
         <div className="max-w-7xl mx-auto space-y-10">
           {/* Bento Grid Layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 lg:gap-8">

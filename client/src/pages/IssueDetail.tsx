@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getIssueById, reportIssue } from "../services/issueService";
 import { IIssue } from "../types";
-import BackgroundWrapper from "../components/BackgroundWrapper";
 import logger from "../utils/logger";
 
 const IssueDetail = () => {
@@ -86,8 +85,13 @@ const IssueDetail = () => {
   }
 
   return (
-    <BackgroundWrapper variant="subtle">
-      <div className="max-w-4xl mx-auto p-6">
+    <div className="min-h-screen relative">
+      {/* Grid Pattern Background */}
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]">
+        <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff,transparent)]"></div>
+      </div>
+      
+      <div className="max-w-4xl mx-auto p-6 pt-20 relative z-10">
       {/* Header */}
       <div className="mb-6">
         <button 
@@ -228,7 +232,7 @@ const IssueDetail = () => {
         </div>
       )}
       </div>
-    </BackgroundWrapper>
+    </div>
   );
 };
 

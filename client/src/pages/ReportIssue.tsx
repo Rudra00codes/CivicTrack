@@ -94,11 +94,22 @@ const ReportIssue = () => {
         [name]: (e.target as HTMLInputElement).checked
       }));
     } else {
-      // Sanitize input to prevent XSS
-      const sanitizedValue = sanitizeInput(value);
+      // For title and description, only do basic XSS protection, preserve spaces
+      let processedValue = value;
+      if (name === 'title' || name === 'description') {
+        // Only remove script tags and dangerous content, preserve spaces
+        processedValue = value
+          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+          .replace(/javascript:/gi, '')
+          .replace(/on\w+\s*=/gi, '');
+      } else {
+        // For other fields, use full sanitization
+        processedValue = sanitizeInput(value);
+      }
+      
       setFormData(prev => ({
         ...prev,
-        [name]: sanitizedValue
+        [name]: processedValue
       }));
       
       // Clear validation error when user starts typing
@@ -291,8 +302,9 @@ const ReportIssue = () => {
   };
 
   return (
-    <BackgroundWrapper variant="dots" className="py-6">
-      <div className="max-w-4xl mx-auto p-2 sm:p-4 md:p-6 w-full overflow-x-hidden">
+    <BackgroundWrapper variant="dots" className="min-h-screen">
+      <div className="container mx-auto px-4 py-4 pt-20">
+        <div className="max-w-4xl mx-auto">
         {/* Breadcrumb */}
         <div className="mb-6">
           <Breadcrumb items={breadcrumbItems} />
@@ -300,8 +312,8 @@ const ReportIssue = () => {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Report an Issue</h1>
-        <p className="text-gray-600">Help improve your community by reporting civic issues. Your report will be reviewed and forwarded to the appropriate authorities.</p>
+        <h1 className="text-3xl font-bold text-white mb-2">Report an Issue</h1>
+        <p className="text-gray-300">Help improve your community by reporting civic issues. Your report will be reviewed and forwarded to the appropriate authorities.</p>
       </div>
 
       {/* Progress Steps */}
@@ -316,7 +328,7 @@ const ReportIssue = () => {
               <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
                 currentStep >= step 
                   ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-200 text-gray-600'
+                  : 'bg-gray-700 text-gray-300'
               }`}>
                 {currentStep > step ? (
                   <CheckCircleIcon className="h-6 w-6" />
@@ -325,7 +337,7 @@ const ReportIssue = () => {
                 )}
               </div>
               <span className={`ml-2 text-sm font-medium ${
-                currentStep >= step ? 'text-blue-600' : 'text-gray-500'
+                currentStep >= step ? 'text-blue-400' : 'text-gray-400'
               }`}>
                 {label}
               </span>
@@ -339,13 +351,19 @@ const ReportIssue = () => {
         </div>
       </div>
 
-  <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 sm:p-4 md:p-6 w-full max-w-2xl mx-auto flex flex-col gap-4 overflow-x-hidden">
+    <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto flex flex-col gap-4 overflow-x-hidden rounded-2xl">
+        {/* Gradient Background */}
+        <div className="absolute inset-0 -z-10 h-full w-full bg-white">
+          <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff,transparent)]"></div>
+        </div>
+        
+        <div className="relative z-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-purple-200/50 p-2 sm:p-4 md:p-6">
         {/* Step 1: Issue Details */}
         {currentStep === 1 && (
           <div className="space-y-6">
-            <div className="border-b border-gray-200 pb-4 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Issue Details</h2>
-              <p className="text-gray-600">Provide clear information about the issue you're reporting.</p>
+            <div className="border-b border-purple-200 pb-4 mb-6">
+              <h2 className="text-xl font-semibold bg-black bg-clip-text text-transparent">Issue Details</h2>
+              <p className="text-purple-700">Provide clear information about the issue you're reporting.</p>
             </div>
 
             <Input
@@ -398,14 +416,14 @@ const ReportIssue = () => {
         {/* Step 2: Location & Photos */}
         {currentStep === 2 && (
           <div className="space-y-6">
-            <div className="border-b border-gray-200 pb-4 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Location & Photos</h2>
-              <p className="text-gray-600">Help us locate the issue and provide visual evidence.</p>
+            <div className="border-b border-purple-200 pb-4 mb-6">
+              <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Location & Photos</h2>
+              <p className="text-purple-700">Help us locate the issue and provide visual evidence.</p>
             </div>
 
             {/* Location */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-purple-800 mb-2">
                 Location <span className="text-red-500">*</span>
               </label>
               <div className="flex gap-3">
@@ -421,7 +439,7 @@ const ReportIssue = () => {
                 <button
                   type="button"
                   onClick={getCurrentLocation}
-                  className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                  className="px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center space-x-2"
                 >
                   <MapPinIcon className="h-5 w-5" />
                   <span>Use GPS</span>
@@ -437,10 +455,10 @@ const ReportIssue = () => {
 
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-purple-800 mb-2">
                 Photos (up to 5)
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+              <div className="border-2 border-dashed border-purple-300 rounded-xl p-8 text-center hover:border-purple-500 transition-colors">
                 <input
                   type="file"
                   multiple
@@ -451,14 +469,14 @@ const ReportIssue = () => {
                 />
                 <label
                   htmlFor="image-upload"
-                  className="cursor-pointer flex flex-col items-center justify-center text-gray-500 hover:text-gray-700"
+                  className="cursor-pointer flex flex-col items-center justify-center text-purple-600 hover:text-purple-800"
                 >
-                  <PhotoIcon className="h-12 w-12 mb-4 text-gray-400" />
+                  <PhotoIcon className="h-12 w-12 mb-4 text-purple-500" />
                   <span className="text-lg font-medium mb-2">Upload Photos</span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-purple-600">
                     Click to browse or drag and drop images here
                   </span>
-                  <span className="text-xs text-gray-400 mt-1">
+                  <span className="text-xs text-purple-500 mt-1">
                     JPG, PNG, WebP up to 5MB each
                   </span>
                 </label>
@@ -483,7 +501,7 @@ const ReportIssue = () => {
                         <img
                           src={URL.createObjectURL(image)}
                           alt={`Upload ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                          className="w-full h-24 object-cover rounded-xl border border-gray-200"
                         />
                         <button
                           type="button"
@@ -507,13 +525,13 @@ const ReportIssue = () => {
         {/* Step 3: Review & Submit */}
         {currentStep === 3 && (
           <div className="space-y-6">
-            <div className="border-b border-gray-200 pb-4 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Review & Submit</h2>
-              <p className="text-gray-600">Please review your report before submitting.</p>
+            <div className="border-b border-purple-200 pb-4 mb-6">
+              <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Review & Submit</h2>
+              <p className="text-purple-700">Please review your report before submitting.</p>
             </div>
 
             {/* Review Summary */}
-            <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+            <div className="bg-gray-50 rounded-xl p-6 space-y-4">
               <div>
                 <h3 className="font-medium text-gray-900">Issue Title</h3>
                 <p className="text-gray-700">{formData.title}</p>
@@ -562,7 +580,7 @@ const ReportIssue = () => {
             </div>
 
             {/* Anonymous Reporting */}
-            <div className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg">
+            <div className="flex items-start space-x-3 p-4 border border-gray-200 rounded-xl">
               <input
                 type="checkbox"
                 id="isAnonymous"
@@ -590,7 +608,7 @@ const ReportIssue = () => {
               <button
                 type="button"
                 onClick={prevStep}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 Previous
               </button>
@@ -645,8 +663,10 @@ const ReportIssue = () => {
             )}
           </div>
         </div>
-      </form>
     </div>
+      </form>
+        </div>
+      </div>
     </BackgroundWrapper>
   );
 };

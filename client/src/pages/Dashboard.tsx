@@ -110,8 +110,8 @@ const Dashboard = () => {
 
   return (
     <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
-      <BackgroundWrapper variant="dots" className="py-10">
-      <div className="max-w-6xl mx-auto px-6">
+      <BackgroundWrapper variant="dots" className="py-4">
+      <div className="max-w-6xl mx-auto px-6 pt-20">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-300 drop-shadow-sm">Dashboard</h1>
