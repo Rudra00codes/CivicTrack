@@ -25,48 +25,48 @@ const Layout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b-2 border-blue-500/20 sticky top-0 z-50 transition-all duration-300">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group">
-              <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="h-10 w-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                 <span className="text-white font-bold text-sm">CT</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">CivicTrack</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">CivicTrack</span>
             </Link>
 
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               <Link 
                 to="/" 
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-blue-50/50 backdrop-blur-sm"
               >
                 Home
               </Link>
               <SignedIn>
                 <Link 
                   to="/dashboard" 
-                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-blue-50/50 backdrop-blur-sm"
                 >
                   Dashboard
                 </Link>
                 <Link 
                   to="/report-issue" 
-                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-blue-50/50 backdrop-blur-sm"
                 >
                   Report Issue
                 </Link>
                 {user?.primaryEmailAddress?.emailAddress?.includes('admin') && (
                   <Link 
                     to="/admin" 
-                    className="text-gray-700 hover:text-purple-600 font-medium transition-colors duration-200"
+                    className="text-gray-700 hover:text-purple-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-purple-50/50 backdrop-blur-sm"
                   >
                     Admin
                   </Link>
                 )}
               </SignedIn>
-              <HelpButton className="text-gray-700 hover:text-blue-600" />
+              <HelpButton className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-blue-50/50 backdrop-blur-sm transition-colors" />
             </nav>
 
             {/* User Section */}
@@ -77,7 +77,9 @@ const Layout = () => {
                   userProfileMode="modal"
                   appearance={{
                     elements: {
-                      avatarBox: "h-8 w-8"
+                      avatarBox: "h-10 w-10 ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all duration-200",
+                      userButtonPopoverCard: "backdrop-blur-xl bg-white/90 border border-gray-200/50 shadow-xl",
+                      userButtonPopoverActionButton: "hover:bg-blue-50/50 transition-colors duration-200"
                     }
                   }}
                 />
@@ -85,13 +87,13 @@ const Layout = () => {
               <SignedOut>
                 <button
                   onClick={() => navigate('/sign-in')}
-                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 px-4 py-2 rounded-lg border border-gray-300 hover:border-blue-600"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 px-4 py-2 rounded-lg border border-gray-300/50 hover:border-blue-600/50 backdrop-blur-sm hover:bg-white/20"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => navigate('/sign-up')}
-                  className="bg-blue-600 text-white font-medium transition-colors duration-200 px-4 py-2 rounded-lg hover:bg-blue-700"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium transition-all duration-200 px-4 py-2 rounded-lg hover:shadow-lg hover:scale-105 backdrop-blur-sm"
                 >
                   Sign Up
                 </button>
