@@ -1,19 +1,14 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
-import { Navigation } from "./common/Navigation";
+import { Outlet, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { HelpButton } from "./common/HelpSystem";
-import { useToastHelpers } from "./common/Toast";
 import { useSmoothScroll } from "../hooks/useSmoothScroll";
 import { ChevronUpIcon } from "@heroicons/react/24/outline";
-import { useUser, useAuth, useClerk } from "@clerk/clerk-react";
+import { useUser, SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 
 const Layout = () => {
-  const { success } = useToastHelpers();
   const { scrollToTop } = useSmoothScroll();
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const { user, isSignedIn, isLoaded } = useUser();
-  const { signOut } = useAuth();
-  const clerk = useClerk();
+  const { user } = useUser();
   const navigate = useNavigate();
 
   // Show/hide back to top button based on scroll position
@@ -27,76 +22,84 @@ const Layout = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Build navigation items based on auth state
-  const navItems = useMemo(() => {
-    const items: any[] = [
-      { label: 'Home', href: '/' },
-    ];
-    if (isSignedIn) {
-      items.push(
-        { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Report Issue', href: '/report-issue' },
-      );
-      if (user?.primaryEmailAddress?.emailAddress?.includes('admin')) {
-        items.push({ label: 'Admin', href: '/admin' });
-      }
-    }
-    items.push({ label: 'Help', onClick: () => {/* Help handled by HelpButton */}, component: <HelpButton /> });
-    return items;
-  }, [isSignedIn, user]);
-
-  // User menu items (or sign in/up) built from auth state
-  const userMenu = useMemo(() => {
-    if (!isLoaded) return undefined; // avoid flicker
-    if (isSignedIn && user) {
-      return {
-        name: user.fullName || user.firstName || 'User',
-        email: user.primaryEmailAddress?.emailAddress,
-        items: [
-          { label: 'Profile', href: '/profile' },
-          { label: 'Settings', href: '/settings' },
-          {
-            label: 'Sign Out',
-            onClick: async () => {
-              try {
-                await signOut();
-                success('Signed out', 'See you soon!');
-                navigate('/');
-              } catch (e) {
-                console.error('Sign out failed', e);
-              }
-            }
-          }
-        ]
-      };
-    }
-    // Signed out state: provide actions
-    return {
-      name: 'Guest',
-      items: [
-        { label: 'Sign In', onClick: () => clerk.openSignIn() },
-        { label: 'Sign Up', onClick: () => clerk.openSignUp() }
-      ]
-    };
-  }, [isSignedIn, isLoaded, user, signOut, success, clerk, navigate]);
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation
-        brand={{
-          name: 'CivicTrack',
-          href: '/',
-          logo: (
-            <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CT</span>
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">CT</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">CivicTrack</span>
+            </Link>
+
+            {/* Navigation */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link 
+                to="/" 
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+              >
+                Home
+              </Link>
+              <SignedIn>
+                <Link 
+                  to="/dashboard" 
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  to="/report-issue" 
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+                >
+                  Report Issue
+                </Link>
+                {user?.primaryEmailAddress?.emailAddress?.includes('admin') && (
+                  <Link 
+                    to="/admin" 
+                    className="text-gray-700 hover:text-purple-600 font-medium transition-colors duration-200"
+                  >
+                    Admin
+                  </Link>
+                )}
+              </SignedIn>
+              <HelpButton className="text-gray-700 hover:text-blue-600" />
+            </nav>
+
+            {/* User Section */}
+            <div className="flex items-center space-x-4">
+              <SignedIn>
+                <UserButton 
+                  afterSignOutUrl="/"
+                  userProfileMode="modal"
+                  appearance={{
+                    elements: {
+                      avatarBox: "h-8 w-8"
+                    }
+                  }}
+                />
+              </SignedIn>
+              <SignedOut>
+                <button
+                  onClick={() => navigate('/sign-in')}
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 px-4 py-2 rounded-lg border border-gray-300 hover:border-blue-600"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => navigate('/sign-up')}
+                  className="bg-blue-600 text-white font-medium transition-colors duration-200 px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  Sign Up
+                </button>
+              </SignedOut>
             </div>
-          )
-        }}
-        items={navItems}
-        userMenu={userMenu}
-        sticky={true}
-        className="shadow-sm"
-      />
+          </div>
+        </div>
+      </header>
       
       <main className="container mx-auto px-4 py-8">
         <Outlet />
@@ -122,7 +125,7 @@ const Layout = () => {
         </div>
       </footer>
 
-  {/* Back to Top Button */}
+      {/* Back to Top Button */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
@@ -132,8 +135,6 @@ const Layout = () => {
           <ChevronUpIcon className="h-5 w-5" />
         </button>
       )}
-
-  {/* Auth debug panel (always enabled in dev) */}
     </div>
   );
 };
