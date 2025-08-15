@@ -33,7 +33,7 @@
 - ✅ **40+ API Endpoints** implemented and tested
 - ✅ **15+ React Components** with TypeScript
 - ✅ **5 Database Models** with geospatial indexing
-- ✅ **Complete Authentication System** with Firebase
+- ✅ **Complete Authentication System** with Clerk
 - ✅ **Security Hardened** with XSS protection and input sanitization
 - ✅ **Production Deployment Ready** with comprehensive documentation
 - ✅ **84 Files** committed across frontend and backend
@@ -58,64 +58,88 @@ CivicTrack is a modern, user-friendly platform that bridges the gap between citi
 graph TB
     subgraph "Frontend Layer"
         A[React SPA<br/>TypeScript + Vite]
-        B[Firebase Auth<br/>JWT Authentication]
+        B[Clerk Authentication<br/>User Management]
         C[Admin Dashboard<br/>Statistics & Moderation]
+        D[Glassmorphism UI<br/>Dynamic Background Detection]
+    end
+    
+    subgraph "UI Components"
+        E[BackgroundWrapper<br/>Dots, Grid, Shader Variants]
+        F[Layout Component<br/>Transparent Navbar]
+        G[Protected Routes<br/>Role-based Access]
+        H[Form Components<br/>Input Sanitization]
     end
     
     subgraph "Backend Services"
-        D[Express.js API Server<br/>TypeScript + Node.js]
-        E[Email Service<br/>SMTP + Templates]
-        F[File Upload Service<br/>Cloudinary + Multer]
-        G[Authentication Middleware<br/>JWT Verification]
+        I[Express.js API Server<br/>TypeScript + Node.js]
+        J[Email Service<br/>SMTP + Templates]
+        K[File Upload Service<br/>Cloudinary + Multer]
+        L[Authentication Middleware<br/>Clerk Integration]
     end
     
     subgraph "Data Layer"
-        H[(MongoDB Atlas<br/>User & Issue Data)]
-        I[(Cloudinary<br/>Media Storage)]
-        J[Firebase<br/>Real-time Auth]
+        M[(MongoDB Atlas<br/>User & Issue Data)]
+        N[(Cloudinary<br/>Media Storage)]
+        O[Clerk Backend<br/>User Authentication]
     end
     
     subgraph "Security & Monitoring"
-        K[Input Sanitization<br/>XSS Protection]
-        L[Rate Limiting<br/>CORS Security]
-        M[Secure Logging<br/>Production Safe]
+        P[Input Sanitization<br/>XSS Protection]
+        Q[Rate Limiting<br/>CORS Security]
+        R[Secure Logging<br/>Production Safe]
+        S[Dynamic Color Detection<br/>Accessibility Features]
     end
     
-    A -->|HTTPS/REST API| D
-    B -->|Auth Tokens| G
-    C -->|Admin Operations| D
-    D -->|Geospatial Queries| H
-    D -->|Image Processing| F
-    F -->|Media Upload| I
-    D -->|Notifications| E
-    G -->|Token Validation| J
-    D -->|Security Layer| K
-    D -->|Security Policies| L
-    D -->|Audit Logging| M
+    A -->|HTTPS/REST API| I
+    B -->|Auth Tokens| L
+    C -->|Admin Operations| I
+    D -->|Background Detection| S
+    E -->|UI Rendering| D
+    F -->|Navbar State| D
+    G -->|Route Protection| B
+    H -->|Form Validation| P
+    I -->|Geospatial Queries| M
+    I -->|Image Processing| K
+    K -->|Media Upload| N
+    I -->|Notifications| J
+    L -->|User Verification| O
+    I -->|Security Layer| P
+    I -->|Security Policies| Q
+    I -->|Audit Logging| R
     
     classDef frontend fill:#e1f5fe
+    classDef ui fill:#f8bbd9
     classDef backend fill:#f3e5f5
     classDef database fill:#e8f5e8
     classDef security fill:#fff3e0
     
-    class A,B,C frontend
-    class D,E,F,G backend
-    class H,I,J database
-    class K,L,M security
+    class A,B,C,D frontend
+    class E,F,G,H ui
+    class I,J,K,L backend
+    class M,N,O database
+    class P,Q,R,S security
 ```
 
 ## 🔄 Component Relationships
 
-- **Frontend**: React + TypeScript + Vite
-- **Authentication**: Firebase Auth with JWT tokens
-- **State Management**: React Context API + Secure Storage
-- **Styling**: Tailwind CSS with responsive design
-- **Backend**: Express.js with TypeScript + MongoDB
-- **File Storage**: Cloudinary with image optimization
-- **Email System**: SMTP with HTML templates
-- **Security**: Input sanitization, XSS protection, CSP headers
-- **Maps Integration**: OpenStreetMap (implemented)
-- **Admin Panel**: Role-based access control
+- **Frontend**: React 19 + TypeScript + Vite 7 with modern UI patterns
+- **Authentication**: Clerk React SDK v5.38.1 with UserButton and session management
+- **State Management**: React Context API + Clerk hooks for auth state
+- **Styling**: Tailwind CSS with custom glassmorphism effects and backdrop-blur
+- **UI Components**: 
+  - **BackgroundWrapper**: Dots, grid, shader, and subtle variants for different page themes
+  - **Layout**: Transparent glassmorphism navbar with dynamic text color adaptation
+  - **Protected Routes**: Clerk-based route protection with role verification
+- **Backend**: Express.js with TypeScript + MongoDB with geospatial indexing
+- **File Storage**: Cloudinary with image optimization and upload handling
+- **Email System**: SMTP with HTML templates for notifications
+- **Security**: 
+  - Input sanitization with selective field processing
+  - XSS protection with Content Security Policy
+  - Dynamic background detection for accessibility
+  - Clerk security features with JWT token validation
+- **Maps Integration**: OpenStreetMap with Leaflet for geolocation features
+- **Admin Panel**: Role-based access control with Clerk permissions
 
 ## 🛠️ Technology Stack
 
@@ -127,7 +151,7 @@ graph TB
 - **📘 Language**: TypeScript 5.0
 - **⚡ Build Tool**: Vite 4.4
 - **🎨 Styling**: Tailwind CSS 3.3
-- **🔐 Authentication**: Firebase Auth
+- **🔐 Authentication**: Clerk
 - **🗂️ State Management**: React Context API
 - **🧭 Routing**: React Router 6.14
 - **📝 Form Handling**: React Hook Form 7.45
@@ -149,7 +173,7 @@ graph TB
 ### DevOps & Deployment
 - **🔧 Development**: Concurrently, Nodemon
 - **📦 Package Manager**: npm
-- **🌐 Deployment**: Vercel (Frontend), Railway/Render (Backend)
+- **🌐 Deployment**: Vercel (Frontend and Backend)
 - **📝 Documentation**: Markdown, API testing guides
 - **🔄 Version Control**: Git with semantic commits
 
@@ -402,23 +426,13 @@ DELETE /api/upload/:publicId        - Delete uploaded image
 
 | Role | Name | Contact | Profile |
 |------|------|---------|---------|
-| **🚀 Frontend Developer & Team Lead** | Rudra Pratap Singh | rudra17122005@gmail.com | ![Rudra](https://avatars.githubusercontent.com/Rudra00codes?s=50) |
-| **⚙️ Backend Developer & DevOps** | Anant Srivastava | anant11012006@gmail.com | ![Anant](https://avatars.githubusercontent.com/u/179017319?s=50) |
+| **🚀 Frontend and Backend Developer & Team Lead** | Rudra Pratap Singh | rudra17122005@gmail.com | ![Rudra](https://avatars.githubusercontent.com/Rudra00codes?s=50) |
+| **⚙️ DevOps** | Anant Srivastava | anant11012006@gmail.com | ![Anant](https://avatars.githubusercontent.com/u/179017319?s=50) |
 | **🎨 UI/UX Designer & Frontend** | Raj Bhardhan Singh | rajbardhansingh17@gmail.com | ![Raj](https://avatars.githubusercontent.com/u/168809688?s=50) |
-| **📋 Project Manager & Strategy** | Yugandhar Bhardwaj | 83yugandhar52@gmail.com | ![Yugandhar]() |
+| **📋 Research & Strategy** | Yugandhar Bhardwaj | 83yugandhar52@gmail.com | ![Yugandhar]() |
 
 <details>
 <summary><strong>🏆 Team NETRUNNERS - Core Strengths</strong> (Click to expand)</summary>
-
-### 🏆 **Team NETRUNNERS**
-*"Connecting communities through code, one issue at a time"*
-
-**Core Strengths:**
-- 🎯 **Full-Stack Expertise**: End-to-end development from UI/UX to database optimization
-- 🔒 **Security-First Approach**: Production-ready security implementations
-- 📊 **Data-Driven Solutions**: Advanced analytics and geospatial intelligence
-- 🚀 **Rapid Prototyping**: 8-hour hackathon to production-ready application
-- 🤝 **Community Focus**: User-centric design with accessibility in mind
 
 </details>
 
@@ -427,7 +441,7 @@ DELETE /api/upload/:publicId        - Delete uploaded image
 <details>
 <summary><strong>🌟 Technology Partners & Special Thanks</strong> (Click to expand)</summary>
 
-- **🔥 [Firebase](https://firebase.google.com/)** for seamless authentication and real-time features
+- **🔥 [Clerk](https://clerk.dev/)** for seamless authentication and real-time features
 - **🎨 [Tailwind CSS](https://tailwindcss.com/)** for beautiful, responsive styling
 - **🎯 [React Icons](https://react-icons.github.io/react-icons/)** for comprehensive icon library
 - **⚡ [Vite](https://vitejs.dev/)** for lightning-fast development experience
