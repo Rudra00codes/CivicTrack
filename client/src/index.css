@@ -258,3 +258,39 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #6b7280;
 }
+
+/* Utility class to hide scrollbars */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Help modal specific styles */
+.help-modal-backdrop {
+  backdrop-filter: blur(4px);
+}
+
+/* Ensure modal is above navbar */
+.help-modal {
+  z-index: 60 !important;
+}
+
+/* Smooth animations for modal content */
+.modal-content {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

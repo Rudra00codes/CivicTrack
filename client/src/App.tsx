@@ -26,10 +26,7 @@ function App() {
         <Router>
           <Suspense fallback={<Loading variant="spinner" />}>
             <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
-              
-              {/* Auth Pages */}
+              {/* Auth Pages (without Layout) */}
               <Route
                 path="/sign-in/*"
                 element={
@@ -51,8 +48,12 @@ function App() {
                 }
               />
 
-              {/* Protected Routes */}
+              {/* All other routes with Layout wrapper */}
               <Route element={<Layout />}>
+                {/* Public Route */}
+                <Route path="/" element={<Home />} />
+                
+                {/* Protected Routes */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/report-issue" element={<ReportIssue />} />
