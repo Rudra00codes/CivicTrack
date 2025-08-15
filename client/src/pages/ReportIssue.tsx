@@ -303,7 +303,7 @@ const ReportIssue = () => {
 
   return (
     <BackgroundWrapper variant="dots" className="min-h-screen">
-      <div className="container mx-auto px-4 py-4 pt-20">
+      <div className="container mx-auto px-4 py-4 pt-24 sm:pt-28">
         <div className="max-w-4xl mx-auto">
         {/* Breadcrumb */}
         <div className="mb-6">

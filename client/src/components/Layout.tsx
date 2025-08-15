@@ -2,13 +2,14 @@ import { Outlet, useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { HelpButton } from "./common/HelpSystem";
 import { useSmoothScroll } from "../hooks/useSmoothScroll";
-import { ChevronUpIcon } from "@heroicons/react/24/outline";
+import { ChevronUpIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useUser, SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 
 const Layout = () => {
   const { scrollToTop } = useSmoothScroll();
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isDarkSection, setIsDarkSection] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user } = useUser();
   const navigate = useNavigate();
 
@@ -22,6 +23,26 @@ const Layout = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [window.location.pathname]);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (isMobileMenuOpen && !target.closest('[data-mobile-menu]')) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [isMobileMenuOpen]);
 
   // Detect background color behind navbar to adjust text color
   useEffect(() => {
@@ -141,6 +162,20 @@ const Layout = () => {
 
             {/* User Section */}
             <div className="flex items-center space-x-4">
+              {/* Mobile Menu Button */}
+              <button
+                data-mobile-menu
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className={`md:hidden ${textColorClass} p-2 rounded-lg hover:bg-white/10 transition-all duration-300`}
+                aria-label="Toggle mobile menu"
+              >
+                {isMobileMenuOpen ? (
+                  <XMarkIcon className="h-6 w-6" />
+                ) : (
+                  <Bars3Icon className="h-6 w-6" />
+                )}
+              </button>
+
               <SignedIn>
                 <UserButton 
                   afterSignOutUrl="/"
@@ -155,19 +190,87 @@ const Layout = () => {
                 />
               </SignedIn>
               <SignedOut>
+                <div className="hidden md:flex items-center space-x-2">
+                  <button
+                    onClick={() => navigate('/sign-in')}
+                    className={`${textColorClass} ${hoverTextColorClass} font-medium transition-all duration-300 px-4 py-2 rounded-lg border ${isDarkSection ? 'border-white/30 hover:border-white/50 hover:bg-white/10' : 'border-gray-300/50 hover:border-blue-600/50 hover:bg-white/20'} backdrop-blur-sm`}
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => navigate('/sign-up')}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium transition-all duration-300 px-4 py-2 rounded-lg hover:shadow-lg hover:scale-105 backdrop-blur-sm hover:from-blue-700 hover:to-purple-700"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              </SignedOut>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <div 
+          data-mobile-menu
+          className={`md:hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}
+        >
+          <div className="bg-white/10 backdrop-blur-xl border-t border-white/10 px-4 py-4 space-y-2">
+            <Link 
+              to="/" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`block ${textColorClass} ${hoverTextColorClass} font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-white/10`}
+            >
+              Home
+            </Link>
+            <SignedIn>
+              <Link 
+                to="/dashboard" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block ${textColorClass} ${hoverTextColorClass} font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-white/10`}
+              >
+                Dashboard
+              </Link>
+              <Link 
+                to="/report-issue" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block ${textColorClass} ${hoverTextColorClass} font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-white/10`}
+              >
+                Report Issue
+              </Link>
+              {user?.primaryEmailAddress?.emailAddress?.includes('admin') && (
+                <Link 
+                  to="/admin" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block ${textColorClass} ${hoverTextColorClass} font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-white/10`}
+                >
+                  Admin
+                </Link>
+              )}
+            </SignedIn>
+            <SignedOut>
+              <div className="space-y-2 pt-2 border-t border-white/10">
                 <button
-                  onClick={() => navigate('/sign-in')}
-                  className={`${textColorClass} ${hoverTextColorClass} font-medium transition-all duration-300 px-4 py-2 rounded-lg border ${isDarkSection ? 'border-white/30 hover:border-white/50 hover:bg-white/10' : 'border-gray-300/50 hover:border-blue-600/50 hover:bg-white/20'} backdrop-blur-sm`}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate('/sign-in');
+                  }}
+                  className={`block w-full text-left ${textColorClass} ${hoverTextColorClass} font-medium transition-all duration-300 px-3 py-2 rounded-lg border ${isDarkSection ? 'border-white/30 hover:border-white/50 hover:bg-white/10' : 'border-gray-300/50 hover:border-blue-600/50 hover:bg-white/20'} backdrop-blur-sm`}
                 >
                   Sign In
                 </button>
                 <button
-                  onClick={() => navigate('/sign-up')}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium transition-all duration-300 px-4 py-2 rounded-lg hover:shadow-lg hover:scale-105 backdrop-blur-sm hover:from-blue-700 hover:to-purple-700"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate('/sign-up');
+                  }}
+                  className="block w-full text-left bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:shadow-lg backdrop-blur-sm hover:from-blue-700 hover:to-purple-700"
                 >
                   Sign Up
                 </button>
-              </SignedOut>
+              </div>
+            </SignedOut>
+            <div className="pt-2 border-t border-white/10">
+              <HelpButton className={`block w-full text-left ${textColorClass} ${hoverTextColorClass} px-3 py-2 rounded-lg hover:bg-white/10 transition-all font-medium`} />
             </div>
           </div>
         </div>

@@ -9,7 +9,6 @@ import {
   MapPinIcon, 
   ExclamationTriangleIcon, 
   ClockIcon,
-  UserGroupIcon,
   ChartBarIcon,
   PlusIcon,
   FunnelIcon
@@ -92,10 +91,10 @@ const Home = () => {
   if (loading) {
     return (
       <BackgroundWrapper variant="dots">
-        <div className="min-h-screen flex items-center justify-center pt-20">
+        <div className="min-h-screen flex items-center justify-center pt-24 sm:pt-28">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your community dashboard...</p>
+            <p className="text-white">Loading your community dashboard...</p>
           </div>
         </div>
       </BackgroundWrapper>
@@ -104,10 +103,10 @@ const Home = () => {
 
   return (
     <BackgroundWrapper variant="shader">
-      <div className="min-h-screen px-4 sm:px-8 lg:px-12 py-10 sm:py-14 pt-20">
-        <div className="max-w-7xl mx-auto space-y-10">
+      <div className="min-h-screen px-4 sm:px-8 lg:px-12 py-8 sm:py-12 pt-24 sm:pt-28">
+        <div className="max-w-7xl mx-auto space-y-8">
           {/* Bento Grid Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-6">
           
           {/* Hero Card - Large */}
           <div className="lg:col-span-2 xl:col-span-3 lg:row-span-2 rounded-3xl p-8 md:p-10 text-white relative overflow-hidden shadow-2xl space-y-4">
@@ -165,24 +164,24 @@ const Home = () => {
 
           {/* User Greeting Card - if signed in */}
           <SignedIn>
-            <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-6 md:p-7 border border-white/30 shadow-2xl space-y-6">
-              <div className="flex items-center space-x-5 mb-5">
-                <div className="h-12 w-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
+            <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-5 border border-white/30 shadow-2xl">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="h-10 w-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                   {user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Hello, {user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User'}!</h3>
-                  <p className="text-gray-500 text-sm">Welcome back to CivicTrack</p>
+                  <h3 className="font-semibold text-white text-sm">Hello, {user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User'}!</h3>
+                  <p className="text-gray-200 text-xs">Welcome back to CivicTrack</p>
                 </div>
               </div>
-              <div className="bg-gradient-to-r from-green-50/80 to-emerald-50/80 backdrop-blur-sm rounded-2xl p-5 border border-green-200/40">
+              <div className="bg-gradient-to-r from-green-50/80 to-emerald-50/80 backdrop-blur-sm rounded-xl p-4 border border-green-200/40">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-2xl font-bold text-green-600">12</p>
-                    <p className="text-green-700 text-sm">Issues Reported</p>
+                    <p className="text-xl font-bold text-green-600">12</p>
+                    <p className="text-green-700 text-xs">Issues Reported</p>
                   </div>
-                  <div className="h-12 w-12 bg-green-100/80 backdrop-blur-sm rounded-full flex items-center justify-center border border-green-200/60">
-                    <ChartBarIcon className="h-6 w-6 text-green-600" />
+                  <div className="h-10 w-10 bg-green-100/80 backdrop-blur-sm rounded-full flex items-center justify-center border border-green-200/60">
+                    <ChartBarIcon className="h-5 w-5 text-green-600" />
                   </div>
                 </div>
               </div>
@@ -190,26 +189,19 @@ const Home = () => {
           </SignedIn>
 
           {/* Search/Filter Card */}
-          <div className={`bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl`}>
-            <SignedIn>
-              <h3 className="font-semibold text-gray-900">Welcome back, {user?.fullName || 'User'}! Here's what's happening in your community.</h3>
-            </SignedIn>
-            <SignedOut>
-              {/* Removed verbose auth status demo card for cleaner UI */}
-            </SignedOut>
-            
+          <div className={`bg-white/20 backdrop-blur-xl rounded-3xl p-5 border border-white/30 shadow-2xl`}>
             <div className="flex items-center space-x-2 mb-4">
-              <FunnelIcon className="h-5 w-5 text-gray-600" />
-              <h3 className="font-semibold text-gray-900">Filters</h3>
+              <FunnelIcon className="h-5 w-5 text-white" />
+              <h3 className="font-semibold text-white">Filters</h3>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-xs font-medium text-white mb-1">Category</label>
                 <select 
                   value={filters.category} 
                   onChange={(e) => setFilters({...filters, category: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/40 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-lg"
+                  className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-lg text-sm"
                 >
                   <option value="">All Categories</option>
                   <option value="Roads">Roads</option>
@@ -222,11 +214,11 @@ const Home = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Distance</label>
+                <label className="block text-xs font-medium text-white mb-1">Distance</label>
                 <select 
                   value={filters.distance} 
                   onChange={(e) => setFilters({...filters, distance: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/40 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-lg"
+                  className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-lg text-sm"
                 >
                   <option value="1000">1 km</option>
                   <option value="3000">3 km</option>
@@ -235,43 +227,43 @@ const Home = () => {
                 </select>
               </div>
 
-              <button className="w-full bg-gradient-to-r from-blue-600/80 to-blue-700/80 backdrop-blur-sm text-white py-3 rounded-xl font-semibold hover:from-blue-700/90 hover:to-blue-800/90 transition-all border border-blue-500/40 shadow-lg">
+              <button className="w-full bg-gradient-to-r from-blue-600/80 to-blue-700/80 backdrop-blur-sm text-white py-2.5 rounded-lg font-semibold hover:from-blue-700/90 hover:to-blue-800/90 transition-all border border-blue-500/40 shadow-lg text-sm">
                 Apply Filters
               </button>
             </div>
           </div>
 
           {/* Statistics Card */}
-          <div className="lg:col-span-2 xl:col-span-2 bg-white/10 backdrop-blur-xl rounded-3xl p-6 text-white relative overflow-hidden border border-white/20 shadow-2xl">
+          <div className="lg:col-span-2 xl:col-span-2 bg-white/10 backdrop-blur-xl rounded-3xl p-5 text-white relative overflow-hidden border border-white/20 shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/60 to-teal-600/60 rounded-3xl"></div>
             <div className="relative z-10">
-            <div className="absolute top-4 right-4">
-              <ChartBarIcon className="h-8 w-8 text-white/50" />
+            <div className="absolute top-3 right-3">
+              <ChartBarIcon className="h-6 w-6 text-white/50" />
             </div>
             
-            <h3 className="font-semibold mb-6 text-emerald-100">Community Impact</h3>
+            <h3 className="font-semibold mb-4 text-emerald-100 text-sm">Community Impact</h3>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-3xl font-bold">{stats.totalIssues.toLocaleString()}</p>
-                <p className="text-emerald-200 text-sm">Total Reports</p>
+                <p className="text-2xl font-bold">{stats.totalIssues.toLocaleString()}</p>
+                <p className="text-emerald-200 text-xs">Total Reports</p>
               </div>
               <div>
-                <p className="text-3xl font-bold">{stats.resolvedIssues.toLocaleString()}</p>
-                <p className="text-emerald-200 text-sm">Resolved</p>
+                <p className="text-2xl font-bold">{stats.resolvedIssues.toLocaleString()}</p>
+                <p className="text-emerald-200 text-xs">Resolved</p>
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.activeReports}</p>
-                <p className="text-emerald-200 text-sm">Active Reports</p>
+                <p className="text-xl font-bold">{stats.activeReports}</p>
+                <p className="text-emerald-200 text-xs">Active Reports</p>
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.communities}</p>
-                <p className="text-emerald-200 text-sm">Communities</p>
+                <p className="text-xl font-bold">{stats.communities}</p>
+                <p className="text-emerald-200 text-xs">Communities</p>
               </div>
             </div>
             </div>
 
-            <div className="absolute -bottom-6 -right-6 h-24 w-24 bg-white/20 backdrop-blur-sm rounded-full border border-white/30"></div>
+            <div className="absolute -bottom-4 -right-4 h-16 w-16 bg-white/20 backdrop-blur-sm rounded-full border border-white/30"></div>
           </div>
 
           {/* Map Card */}
@@ -279,10 +271,10 @@ const Home = () => {
             <div className="p-6 border-b border-white/20 bg-white/10 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <MapPinIcon className="h-5 w-5 text-gray-600" />
-                  <h3 className="font-semibold text-gray-900">Issues Near You</h3>
+                  <MapPinIcon className="h-5 w-5 text-white" />
+                  <h3 className="font-semibold text-white">Issues Near You</h3>
                 </div>
-                <span className="text-sm text-gray-600 bg-white/60 backdrop-blur-sm px-3 py-1 rounded-full border border-white/40">
+                <span className="text-sm text-white bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/40">
                   {issues.length} found
                 </span>
               </div>
@@ -307,7 +299,7 @@ const Home = () => {
                       <Popup>
                         <div className="p-2">
                           <h3 className="font-bold">{issue.title}</h3>
-                          <p className="text-sm text-gray-600">{issue.description}</p>
+                          <p className="text-sm text-gray-700">{issue.description}</p>
                           <div className="flex justify-between items-center mt-2">
                             <span className={`px-2 py-1 rounded text-xs ${
                               issue.status === 'Resolved' ? 'bg-green-100 text-green-800' :
@@ -316,7 +308,7 @@ const Home = () => {
                             }`}>
                               {issue.status}
                             </span>
-                            <span className="text-xs text-gray-500">{issue.category}</span>
+                            <span className="text-xs text-gray-600">{issue.category}</span>
                           </div>
                         </div>
                       </Popup>
@@ -324,9 +316,9 @@ const Home = () => {
                   ))}
                 </MapContainer>
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
+                <div className="h-full flex items-center justify-center text-white">
                   <div className="text-center">
-                    <MapPinIcon className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                    <MapPinIcon className="h-12 w-12 mx-auto mb-2 text-gray-200" />
                     <p>Loading map...</p>
                   </div>
                 </div>
@@ -335,68 +327,41 @@ const Home = () => {
           </div>
 
           {/* Recent Issues Card */}
-          <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl">
-            <div className="flex items-center space-x-2 mb-4">
-              <ClockIcon className="h-5 w-5 text-gray-600" />
-              <h3 className="font-semibold text-gray-900">Recent Reports</h3>
+          <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-5 border border-white/30 shadow-2xl">
+            <div className="flex items-center space-x-2 mb-3">
+              <ClockIcon className="h-4 w-4 text-white" />
+              <h3 className="font-semibold text-white text-sm">Recent Reports</h3>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {recentIssues.length > 0 ? (
                 recentIssues.map((issue) => (
-                  <div key={issue._id} className="flex items-start space-x-3 p-3 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/30">
-                    <div className={`h-2 w-2 rounded-full mt-2 ${
+                  <div key={issue._id} className="flex items-start space-x-2 p-2.5 bg-white/40 backdrop-blur-sm rounded-xl border border-white/30">
+                    <div className={`h-1.5 w-1.5 rounded-full mt-1.5 ${
                       issue.status === 'Resolved' ? 'bg-green-500' :
                       issue.status === 'In Progress' ? 'bg-yellow-500' :
                       'bg-red-500'
                     }`}></div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 text-sm truncate">{issue.title}</p>
-                      <p className="text-gray-500 text-xs">{issue.category}</p>
-                      <p className="text-gray-400 text-xs">{new Date(issue.createdAt).toLocaleDateString()}</p>
+                      <p className="font-medium text-white text-xs truncate">{issue.title}</p>
+                      <p className="text-gray-200 text-xs">{issue.category}</p>
+                      <p className="text-gray-300 text-xs">{new Date(issue.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8">
-                  <ExclamationTriangleIcon className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                  <p className="text-gray-500 text-sm">No recent reports</p>
+                <div className="text-center py-6">
+                  <ExclamationTriangleIcon className="h-6 w-6 mx-auto mb-2 text-gray-200" />
+                  <p className="text-white text-xs">No recent reports</p>
                 </div>
               )}
               
               <Link
                 to="/dashboard"
-                className="block w-full text-center text-blue-600 hover:text-blue-700 font-medium text-sm py-2"
+                className="block w-full text-center text-blue-600 hover:text-blue-700 font-medium text-xs py-2"
               >
                 View All Reports →
               </Link>
-            </div>
-          </div>
-
-          {/* Quick Actions Card */}
-          <div className="lg:col-span-2 xl:col-span-2 bg-white/20 backdrop-blur-xl rounded-3xl p-6 text-gray-800 relative border border-white/30 shadow-2xl">
-            <div className="relative z-10">
-            <div className="absolute top-4 right-4">
-              <UserGroupIcon className="h-8 w-8 text-gray-600/70" />
-            </div>
-            
-            <h3 className="font-semibold mb-4 text-gray-800">Take Action</h3>
-            
-            <div className="space-y-3">
-              <button
-                onClick={navigateToReportIssue}
-                className="block w-full bg-white/40 hover:bg-white/50 text-gray-800 py-3 px-4 rounded-xl font-medium text-center transition-all backdrop-blur-md border border-white/50 shadow-lg hover:shadow-xl"
-              >
-                Report New Issue
-              </button>
-              
-              <Link
-                to="/dashboard"
-                className="block w-full bg-white/30 hover:bg-white/40 text-gray-800 py-3 px-4 rounded-xl font-medium text-center transition-all backdrop-blur-md border border-white/40 shadow-lg hover:shadow-xl"
-              >
-                View Dashboard
-              </Link>
-            </div>
             </div>
           </div>
 

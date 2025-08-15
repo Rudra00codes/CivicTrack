@@ -91,7 +91,7 @@ const IssueDetail = () => {
         <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff,transparent)]"></div>
       </div>
       
-      <div className="max-w-4xl mx-auto p-6 pt-20 relative z-10">
+      <div className="max-w-4xl mx-auto p-6 pt-24 sm:pt-28 relative z-10">
       {/* Header */}
       <div className="mb-6">
         <button 
