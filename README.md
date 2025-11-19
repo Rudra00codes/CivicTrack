@@ -22,13 +22,6 @@
   ![GitHub top language](https://img.shields.io/github/languages/top/Rudra00codes/CivicTrack)
 </div>
 
-## 🏆 Hackathon Info
-**Event:** Odoo x CGC Hackathon 2025  
-**Theme:** Smart Cities & Civic Engagement  
-**Duration:** 8 Hours → Extended Development  
-**Team:** NETRUNNERS  
-**Status:** 🚀 **PRODUCTION READY** - Full-Stack Implementation Complete
-
 ### 📊 **Project Achievements**
 - ✅ **40+ API Endpoints** implemented and tested
 - ✅ **15+ React Components** with TypeScript
@@ -422,20 +415,6 @@ DELETE /api/upload/:publicId        - Delete uploaded image
 
 </details>
 
-## 👥 Team Details
-
-| Role | Name | Contact | Profile |
-|------|------|---------|---------|
-| **🚀 Frontend and Backend Developer & Team Lead** | Rudra Pratap Singh | rudra17122005@gmail.com | ![Rudra](https://avatars.githubusercontent.com/Rudra00codes?s=50) |
-| **⚙️ DevOps** | Anant Srivastava | anant11012006@gmail.com | ![Anant](https://avatars.githubusercontent.com/u/179017319?s=50) |
-| **🎨 UI/UX Designer & Frontend** | Raj Bhardhan Singh | rajbardhansingh17@gmail.com | ![Raj](https://avatars.githubusercontent.com/u/168809688?s=50) |
-| **📋 Research & Strategy** | Yugandhar Bhardwaj | 83yugandhar52@gmail.com | ![Yugandhar]() |
-
-<details>
-<summary><strong>🏆 Team NETRUNNERS - Core Strengths</strong> (Click to expand)</summary>
-
-</details>
-
 ## 🙏 Acknowledgements
 
 <details>
@@ -454,7 +433,6 @@ DELETE /api/upload/:publicId        - Delete uploaded image
 - **Open Source Community** for the amazing tools and libraries
 - **Municipal Technology Partners** for inspiration and civic engagement insights
 - **Beta Testers** who helped us identify and resolve critical issues
-- **Hackathon Mentors** for guidance and technical expertise
 
 </details>
 
