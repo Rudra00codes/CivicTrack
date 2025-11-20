@@ -22,13 +22,6 @@
   ![GitHub top language](https://img.shields.io/github/languages/top/Rudra00codes/CivicTrack)
 </div>
 
-## 🏆 Hackathon Info
-**Event:** Odoo x CGC Hackathon 2025  
-**Theme:** Smart Cities & Civic Engagement  
-**Duration:** 8 Hours → Extended Development  
-**Team:** NETRUNNERS  
-**Status:** 🚀 **PRODUCTION READY** - Full-Stack Implementation Complete
-
 ### 📊 **Project Achievements**
 - ✅ **40+ API Endpoints** implemented and tested
 - ✅ **15+ React Components** with TypeScript
@@ -371,13 +364,13 @@ DELETE /api/upload/:publicId        - Delete uploaded image
 
 | **🏠 Landing Page** | **📊 Dashboard** | **📝 Report Issue** |
 |---------------------|------------------|---------------------|
-| ![Home](https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop&auto=format) | ![Dashboard](https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop&auto=format) | ![Report](https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=200&fit=crop&auto=format) |
+| ![Home](https://ik.imagekit.io/s5z5osyjg/Civic%20Track%20Project%20Assets/screencapture-civic-track-lime-vercel-app-2025-08-16-01_08_15.png) | ![Dashboard](https://ik.imagekit.io/s5z5osyjg/Civic%20Track%20Project%20Assets/screencapture-civic-track-lime-vercel-app-dashboard-2025-08-16-01_09_09.png) | ![Report](https://ik.imagekit.io/s5z5osyjg/Civic%20Track%20Project%20Assets/screencapture-civic-track-lime-vercel-app-report-issue-2025-11-20-00_20_18.png) |
 | Modern landing with authentication | Interactive dashboard with filtering | Comprehensive reporting form |
 
 | **🔍 Issue Details** | **🗺️ Map Integration** | **👑 Admin Panel** |
 |---------------------|----------------------|---------------------|
-| ![Details](https://images.unsplash.com/photo-1551434678-e076c223a692?w=300&h=200&fit=crop&auto=format) | ![Map](https://images.unsplash.com/photo-1524661135-423995f22d0b?w=300&h=200&fit=crop&auto=format) | ![Admin](https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop&auto=format) |
-| Detailed issue view with actions | OpenStreetMap with location pins | Admin dashboard with analytics |
+| ![Details](https://ik.imagekit.io/s5z5osyjg/Civic%20Track%20Project%20Assets/ScreenShot%20Tool%20-20251120002414.png) | ![Map](https://ik.imagekit.io/s5z5osyjg/Civic%20Track%20Project%20Assets/screencapture-civic-track-lime-vercel-app-2025-08-16-01_08_15.png) | ![Admin](https://ik.imagekit.io/s5z5osyjg/Civic%20Track%20Project%20Assets/Screenshot%202025-11-20%20002700.png) |
+| Detailed issue view with actions | OpenStreetMap with location pins | Admin dashboard |
 
 ### 🎯 **Key Visual Features**
 - 📱 **Mobile-First Responsive Design** - Works seamlessly across all devices
@@ -422,20 +415,6 @@ DELETE /api/upload/:publicId        - Delete uploaded image
 
 </details>
 
-## 👥 Team Details
-
-| Role | Name | Contact | Profile |
-|------|------|---------|---------|
-| **🚀 Frontend and Backend Developer & Team Lead** | Rudra Pratap Singh | rudra17122005@gmail.com | ![Rudra](https://avatars.githubusercontent.com/Rudra00codes?s=50) |
-| **⚙️ DevOps** | Anant Srivastava | anant11012006@gmail.com | ![Anant](https://avatars.githubusercontent.com/u/179017319?s=50) |
-| **🎨 UI/UX Designer & Frontend** | Raj Bhardhan Singh | rajbardhansingh17@gmail.com | ![Raj](https://avatars.githubusercontent.com/u/168809688?s=50) |
-| **📋 Research & Strategy** | Yugandhar Bhardwaj | 83yugandhar52@gmail.com | ![Yugandhar]() |
-
-<details>
-<summary><strong>🏆 Team NETRUNNERS - Core Strengths</strong> (Click to expand)</summary>
-
-</details>
-
 ## 🙏 Acknowledgements
 
 <details>
@@ -454,7 +433,6 @@ DELETE /api/upload/:publicId        - Delete uploaded image
 - **Open Source Community** for the amazing tools and libraries
 - **Municipal Technology Partners** for inspiration and civic engagement insights
 - **Beta Testers** who helped us identify and resolve critical issues
-- **Hackathon Mentors** for guidance and technical expertise
 
 </details>
 
