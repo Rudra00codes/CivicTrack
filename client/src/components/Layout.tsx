@@ -285,7 +285,7 @@ const Layout = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-gray-600">
-              © 2024 CivicTrack. Making communities better, one report at a time.
+              © 2025 CivicTrack. Making communities better, one report at a time.
             </div>
             <div className="flex items-center space-x-6 text-sm">
               <a href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors">
